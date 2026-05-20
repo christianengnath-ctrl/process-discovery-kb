@@ -60,17 +60,14 @@ Prepared: Wed 20 May 2026 · Kickoff session
 **Goal:** The output nobody else has.
 
 - After interview ends: parse flowchart into structured agent spec
-  ```json
-  {
-    "trigger": "Customer sends refund request email",
-    "steps": [...],
-    "decisions": [{ "condition": "Amount > $500", "yes": "manager_approval", "no": "auto_approve" }],
-    "actors": ["AP clerk", "Finance Manager (on-call rotation)"],
-    "exceptions": ["Multiple recent refunds", "Order > 90 days old"],
-    "tools_needed": ["Email inbox", "Order management system", "Slack (manager notify)"],
-    "confidence_avg": 0.79
-  }
-  ```
+- **Output format: SIPOC table** (confirmed scope addition, ~2-3h)
+  | Suppliers | Inputs | Process Steps | Outputs | Customers |
+  |---|---|---|---|---|
+  | e.g. Customer | Refund request email | 1. Receive 2. Validate 3. Check eligibility 4. Amount check 5. Issue/reject | Refund confirmation / rejection email | Customer, Finance team |
+  - Instantly recognizable to operational/finance buyers — looks like a professional consulting deliverable, not a JSON blob
+  - Consistent format regardless of process
+- **Step classification tags** on each flowchart node (~1h): `Deterministic` / `Agentic` / `RPA Bridge`
+  - Makes the output look sophisticated and maps directly to automation planning
 - Render as an "Agent Blueprint" card in the project view
 - "Export / Preview in Beam" action — well-formatted view is enough; doesn't need to be a live agent for the demo
 
@@ -102,6 +99,11 @@ Prepared: Wed 20 May 2026 · Kickoff session
 2. **Voice or text-only for the Friday demo?** Voice = impressive. Text = reliable. Recommendation: wire both, fall back to text if unstable.
 3. **Which demo scenario?** Refund processing (recommended — pre-built, real, transcript exists).
 4. **Stream ownership confirmed?** Assign before 17:15 checkout today.
+
+## Confirmed scope additions (post-kickoff)
+
+- **Stream 3: SIPOC output format** — agent spec renders as a SIPOC table, not raw JSON. ~2-3h. Owner: Lucas.
+- **Stream 3: Step classification tags** — each flowchart node gets Deterministic / Agentic / RPA Bridge label. ~1h. Owner: Lucas.
 
 ---
 
