@@ -103,16 +103,17 @@ Recall.ai websocket → utterance_end → transcript_text
 
 ---
 
-### Step 4 — Connect the flowchart UI
+### Step 4 — Connect the output UI (post-interview)
 **~2 hours (can run in parallel with Step 3)**
 
-The loop already produces structured extraction JSON per turn. That JSON is the data source for the flowchart.
+The flowchart, SIPOC, and SOP are shown AFTER the interview ends — not during the call. During the interview, the Timmy web app shows only:
+- Timmy's avatar image
+- A status indicator (Timmy is speaking / listening)
+- Optionally: a live transcript of the conversation
 
-After each `kb_update()`, emit the new node/edge data to the frontend (websocket or polling). The flowchart re-renders with the new node.
+After the session ends and the user clicks "Generate outputs", the app reads the accumulated KB and renders the flowchart + SIPOC + SOP. Aqib's prototype already has the flowchart renderer — wire it to the final KB state, not to a live per-turn feed.
 
-Aqib's prototype already has the flowchart renderer — wire the data source, don't rebuild the renderer.
-
-**Done when:** A new node appears on the flowchart after each interview turn during a live test.
+**Done when:** After ending a test session, clicking "Generate outputs" renders the flowchart with nodes from the KB and the SIPOC table below it.
 
 ---
 
@@ -160,8 +161,9 @@ Do not chase Recall.ai past 15:00.
 │  [Recall.ai audio injection]                       │
 │    Timmy speaks in the Meet call                   │
 │         ↓                                          │
-│  [Flowchart update]                                │
-│    Emit new KB node → frontend re-renders          │
+│  [KB append]                                       │
+│    Extraction JSON stored locally — no UI update   │
+│    Flowchart rendered only after session ends      │
 │                                                     │
 └─────────────────────────────────────────────────────┘
 ```
