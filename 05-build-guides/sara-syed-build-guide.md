@@ -9,11 +9,13 @@
 
 ## Before you write a single line of code
 
-Get these two API keys right now. Everything else is blocked until you have them.
+Get this API key right now. Everything else is blocked until you have it.
 
 1. **Recall.ai** — recall.ai, self-serve sign-up, no sales call needed
-2. **ElevenLabs** — elevenlabs.io, self-serve, free tier works for the demo - we have an integration inside of prism already running that can be used
-3. Pick a Timmy voice in the ElevenLabs console before starting — don't default to whatever comes first. Pick something that sounds like a calm, professional interviewer.
+
+**ElevenLabs — do not set up from scratch.** Prism already has a running ElevenLabs integration. Ask Aqib for the credentials/config. Reuse that — don't create a new account or key.
+
+Once you have access, pick a Timmy voice in the ElevenLabs console before starting. Don't default to whatever comes first. Pick something that sounds like a calm, professional interviewer.
 
 Also confirm you have your **OpenAI API key** in `.env.local` — you need it for the extraction and question generation calls.
 
@@ -174,7 +176,7 @@ If the extraction is producing wrong JSON or the question generator is hallucina
 
 ### Why ElevenLabs over OpenAI TTS?
 
-OpenAI TTS is simpler (you already have the key) and good enough. But ElevenLabs voices sound significantly more natural in conversational context. The demo lives or dies on whether Timmy feels like a real interviewer. A robotic voice undermines the effect even if the questions are great. Pick ElevenLabs, pick a good voice, and the demo lands harder.
+OpenAI TTS is simpler and good enough. But ElevenLabs voices sound significantly more natural in conversational context — the demo lives or dies on whether Timmy feels like a real interviewer. A robotic voice undermines the effect even if the questions are great. Prism already has ElevenLabs running, so there's no setup cost. Use it.
 
 ### Why Recall.ai over other options?
 
