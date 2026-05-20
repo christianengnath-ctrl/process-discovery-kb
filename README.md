@@ -178,3 +178,15 @@ Interviewee speaks in Meet
 ---
 
 *Knowledge base: `github.com/christianengnath-ctrl/process-discovery-kb`*
+
+---
+
+## Repository structure
+
+| Folder | What's in it |
+|---|---|
+| `01-what-we-have/` | Analysis of Aqib's existing POC — feature breakdown, what's already built and usable |
+| `02-competitive-intelligence/` | Full competitive analysis of Klarity, Varos, Ontora, and Flowscope — feature comparisons, pricing, whitespace. Includes the Klarity sales call transcript and key insights from that conversation |
+| `03-kickoff-brief/` | Team kickoff brief — 4 build streams, scope decisions, risk log, confirmed scope additions (SIPOC, step classification tags) |
+| `04-insights-and-decisions/` | Strategic synthesis, MVP end-to-end flow, and the full MVP scope overview. The source of truth for what's in, what's out, and why |
+| `05-build-guides/` | Hands-on build guide for Sara and Syed — 4-step sequence, loop diagram, risk gate, and explainers for every architectural decision |
