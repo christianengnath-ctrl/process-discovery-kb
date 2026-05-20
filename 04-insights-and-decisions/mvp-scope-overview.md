@@ -161,12 +161,14 @@ All three generated from the KB accumulated during the session. One additional L
 
 | Phase | Status | Owner |
 |---|---|---|
-| 1. Campaign setup | ✓ In nucleus | Sara + Syed |
-| 2. Context integration | ✓ In nucleus | Sara + Syed |
-| 3. Goal definition | ✓ In nucleus (simplified) | Sara + Syed |
-| 4. AI interview — voice in Google Meet via Recall.ai + ElevenLabs | ✓ In nucleus — core demo | Sara + Syed |
-| 5. Intake & processing (extraction per turn) | ✓ In nucleus | Sara + Syed |
-| 6. KB building (single session, local JSON) | ✓ In nucleus | Sara + Syed |
+| 1. Campaign setup | ✓ In nucleus | Sara |
+| 2. Context integration | ✓ In nucleus | Sara |
+| 3. Goal definition | ✓ In nucleus (simplified) | Sara |
+| 4. AI interview — voice in Google Meet via Recall.ai + ElevenLabs | ✓ In nucleus — core demo | Syed |
+| 5. Intake & processing (extraction per turn) | ✓ In nucleus | Syed |
+| 6. KB building (single session, local JSON) | ✓ In nucleus | Syed |
 | 7. Multi-interview contextualization | ✗ Out of scope — Week 1 roadmap | — |
-| 8. Orchestration (Timmy loop, state machine) | ✓ In nucleus | Sara + Syed |
+| 8. Orchestration (Timmy loop, state machine) | ✓ In nucleus | Syed |
 | 9. Output: SIPOC + labeled flowchart + SOP | ✓ In nucleus | Lucas |
+| Timmy conversation design + prompt files | ✓ In nucleus — unblocks Syed | Lucas (do first) |
+| Demo script + pitch prep + coordination | ✓ In nucleus | Christian |
