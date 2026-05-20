@@ -12,7 +12,7 @@
 Get these two API keys right now. Everything else is blocked until you have them.
 
 1. **Recall.ai** — recall.ai, self-serve sign-up, no sales call needed
-2. **ElevenLabs** — elevenlabs.io, self-serve, free tier works for the demo
+2. **ElevenLabs** — elevenlabs.io, self-serve, free tier works for the demo - we have an integration inside of prism already running that can be used
 3. Pick a Timmy voice in the ElevenLabs console before starting — don't default to whatever comes first. Pick something that sounds like a calm, professional interviewer.
 
 Also confirm you have your **OpenAI API key** in `.env.local` — you need it for the extraction and question generation calls.
