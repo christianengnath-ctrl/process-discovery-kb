@@ -169,6 +169,5 @@ All three generated from the KB accumulated during the session. One additional L
 | 6. KB building (single session, local JSON) | ✓ In nucleus | Syed |
 | 7. Multi-interview contextualization | ✗ Out of scope — Week 1 roadmap | — |
 | 8. Orchestration (Timmy loop, state machine) | ✓ In nucleus | Syed |
-| 9. Output: SIPOC + labeled flowchart + SOP | ✓ In nucleus | Lucas |
+| 9. Output: SIPOC + labeled flowchart + SOP | ✓ In nucleus | Christian |
 | Timmy conversation design + prompt files | ✓ In nucleus — unblocks Syed | Lucas (do first) |
-| Demo script + pitch prep + coordination | ✓ In nucleus | Christian |
