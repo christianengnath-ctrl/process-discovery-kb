@@ -216,14 +216,14 @@ User arrives from AddContext
 ## User Story — Step 5: Interview Setup
 
 **Goal**
-The solutions engineer pastes the Google Meet link and launches Timmy into the call. This is the final confirmation step before the interview begins.
+The solutions engineer selects an interview mode and starts the session. This is the final confirmation step before the interview begins — no external tools or links required.
 
 **Screen name**
 `InterviewSetup`
 
 **Data**
-- Reads: current project from local storage
-- Writes: `meetUrl` field on current project; triggers Recall.ai bot creation (external API call)
+- Reads: current project from local storage (`goals[]`, `contextBlob`)
+- Writes: `interviewMode: 'voice' | 'voice+screen'` on current project; `status → 'interviewing'`
 
 **Context**
 
@@ -232,80 +232,73 @@ The solutions engineer pastes the Google Meet link and launches Timmy into the c
 *Logic flow:*
 ```
 User arrives from GoalDefinition
-  → show Timmy avatar, Meet link input field, "Launch Timmy" button
-  → "Launch Timmy" disabled until Meet URL field is non-empty
-  → user pastes Google Meet URL → button enables
-  → user clicks "Launch Timmy"
-    → show loading state: "Timmy is joining the call…"
-    → POST to Recall.ai API: create bot with meetUrl, bot_name: "Timmy"
-    → on success:
-        save meetUrl to project
-        navigate to InterviewInProgress
-    → on Recall.ai failure:
-        show error message
-        offer two buttons: "Retry" and "Switch to manual mode"
-        "Switch to manual mode" navigates to InterviewInProgress with mode: "manual"
+  → show Timmy avatar + two mode-selector cards + "Start interview" button
+  → Voice only pre-selected by default
+  → user optionally switches to "Voice + Screen recording"
+  → user clicks "Start interview"
+    → save interviewMode to project in local state
+    → update project status to 'interviewing'
+    → navigate to InterviewInProgress
 ```
 
 **Constraints**
-- Do not validate the Meet URL format beyond non-empty
+- Do not add a Meet URL field — interview runs entirely in the browser
 - Do not add scheduling or calendar integration
 - Do not show the goals list on this screen
 - Do not allow editing goals from this screen
+- Default mode must always be Voice only
 
 **Definition of Done**
-- [ ] Screen shows Timmy's avatar, a Meet URL input field, and a "Launch Timmy" button
-- [ ] "Launch Timmy" is disabled until the URL field has content
-- [ ] Clicking "Launch Timmy" shows a loading state and calls the Recall.ai bot creation API
-- [ ] On Recall.ai success, app navigates to `InterviewInProgress`
-- [ ] On Recall.ai failure, error is shown with "Retry" and "Switch to manual mode" buttons
-- [ ] "Switch to manual mode" navigates to `InterviewInProgress` with `mode: "manual"` in state
+- [ ] Screen shows Timmy's avatar, two mode-selector cards, and a "Start interview" button
+- [ ] Voice only is pre-selected on arrival
+- [ ] Clicking a card selects that mode and deselects the other
+- [ ] Clicking "Start interview" saves `interviewMode` to local state and navigates to `InterviewInProgress`
+- [ ] `project.interviewMode` is readable from `InterviewInProgress` immediately after navigation
 
 ---
 
 ## User Story — Step 6: Interview In Progress
 
 **Goal**
-The solutions engineer sees that the interview is running. Timmy handles the conversation entirely in the Google Meet. The app confirms the session is active — nothing more.
+The solutions engineer monitors the live session. Timmy handles the conversation entirely via ElevenLabs TTS in the browser. The app confirms the session is active — nothing more. The screen has two variants driven by the `interviewMode` selected in Step 5.
 
 **Screen name**
 `InterviewInProgress`
 
 **Data**
-- Reads: current project (`goals[]`, `contextBlob`, `kb[]`) from local storage; Recall.ai websocket stream
-- Writes: appends to `kb[]` on current project after each turn; updates `goals[].covered` as goals are met
+- Reads: current project (`goals[]`, `contextBlob`, `kb[]`, `interviewMode`) from local storage
+- Writes: appends to `kb[]` on current project after each turn; updates `goals[].covered` as goals are met; `status → 'complete'` on end
 
 **Context**
 
 *Screenshots:* Search for: voice agent waiting screen, AI call in progress UI, minimal "something is running" screen. Looking for: how to communicate that a background process is active without showing real-time data — calm, confident, minimal.
 
-*Logic flow — automatic mode (Recall.ai):*
+*Logic flow — Voice only:*
 ```
-On arrival:
-  → open Recall.ai websocket
-  → show avatar + "Interview in progress" status + timer
-  → Timmy sends opening message via ElevenLabs TTS + Recall.ai audio injection
+On arrival (interviewMode: 'voice'):
+  → show "Interview in progress" chip + Timmy avatar + timer + goal chips
+  → Timmy sends opening message via ElevenLabs TTS (browser audio)
 
 Per utterance-end event:
   → extraction LLM call → structured JSON
   → append to kb[] in local storage
   → check goal coverage → update goals[].covered
   → question generator LLM call → next question text
-  → ElevenLabs TTS → audio bytes → Recall.ai audio injection → Timmy speaks
+  → ElevenLabs TTS → audio plays in browser → Timmy speaks
 
 When all goals covered:
-  → Timmy delivers closing summary in the call
   → status indicator → "Interview complete"
   → button → "Generate outputs"
 ```
 
-*Logic flow — manual relay mode:*
+*Logic flow — Voice + Screen recording:*
 ```
-On arrival (mode: "manual"):
-  → show avatar + Timmy's current question in large text + text input + "Submit answer" button
-  → solutions engineer reads question out loud, types interviewee's response
-  → "Submit answer" triggers same per-turn loop (skip Recall.ai steps)
-  → next question replaces previous question on screen
+On arrival (interviewMode: 'voice+screen'):
+  → same as Voice only, PLUS:
+  → show screen capture preview panel above the timer
+  → show "● Recording" badge on the preview panel
+  → screen capture runs via browser MediaRecorder API
+  → recording stream saved locally for transcript generation
 ```
 
 *Decision point — user ends early:*
@@ -317,45 +310,48 @@ User clicks "End interview"
 ```
 
 **Edge cases:**
-- Recall.ai drops mid-session → show reconnection banner, attempt once, then offer "End and generate outputs"
-- No speech detected for 60s → Timmy asks "Are you still there?" via audio injection
+- Screen recording permission denied → show permission error prompt; offer "Continue in Voice-only mode" button
+- No speech detected for 60 s → Timmy asks "Are you still there?"
 
 **Constraints**
 - Do not show a live transcript feed in the UI
 - Do not show the goals checklist updating in real time
 - Do not show extraction results or KB contents during the session
 - Do not allow editing goals during the interview
-- Manual relay mode must use the identical Timmy loop — only audio plumbing differs
+- Both modes use the identical Timmy loop — only the screen capture layer differs
 
-**Definition of Done**
-- [ ] Screen shows Timmy's avatar, "Interview in progress" status, and a running timer
-- [ ] Recall.ai websocket opens on arrival in automatic mode
-- [ ] Per-turn loop fires on each utterance-end event: extraction → KB update → goal check → question generation → TTS → audio injection
-- [ ] `kb[]` in local storage grows after each turn
-- [ ] `goals[].covered` updates correctly as goals are addressed
-- [ ] When all goals are covered, status updates to "Interview complete" and button changes to "Generate outputs"
+**Definition of Done — Voice only**
+- [ ] Screen shows Timmy's avatar, "Interview in progress" chip, and a running timer
+- [ ] Goal coverage chips visible when goals exist; update as Timmy covers each goal
+- [ ] Per-turn loop fires: extraction → KB update → goal check → question generation → TTS
+- [ ] `kb[]` grows after each turn; `goals[].covered` updates correctly
+- [ ] When all goals covered, status updates to "Interview complete" and button changes to "Generate outputs"
 - [ ] "End interview" shows a confirmation dialog before navigating away
-- [ ] Manual relay mode shows Timmy's question as large text with a text input and submit button
-- [ ] Manual relay mode runs the identical Timmy loop without Recall.ai steps
+
+**Definition of Done — Voice + Screen recording (additional)**
+- [ ] Screen capture preview panel renders above the timer
+- [ ] "● Recording" badge is visible on the preview panel
+- [ ] If screen permission is denied, error prompt appears with "Continue in Voice-only mode" option
 
 ---
 
 ## User Story — Step 7: Generating Outputs
 
 **Goal**
-After the interview ends, the app generates the three outputs from the accumulated knowledge base. The solutions engineer sees clear progress and is automatically taken to the results when done.
+After the interview ends, the app generates four outputs from the accumulated knowledge base and interview audio. The solutions engineer sees clear progress and is automatically taken to the results when done.
 
 **Screen name**
 `GeneratingOutputs`
 
 **Data**
-- Reads: current project (`kb[]`, `goals[]`, `clientName`, `processName`) from local storage
+- Reads: current project (`kb[]`, `goals[]`, `clientName`, `processName`) from local storage; raw audio (Voice+Screen mode)
 - Writes: `outputs` object on current project:
   ```json
   "outputs": {
     "flowchart": { "nodes": [], "edges": [] },
     "sipoc": { "suppliers": [], "inputs": [], "steps": [], "outputs": [], "customers": [] },
-    "sop": { "purpose": "", "scope": "", "roles": [], "steps": [], "exceptions": [], "systems": [], "approvals": "" }
+    "sop": { "purpose": "", "scope": "", "roles": [], "steps": [], "exceptions": [], "systems": [], "approvals": "" },
+    "transcript": { "turns": [{ "speaker": "", "text": "", "timestamp": "" }] }
   }
   ```
 
@@ -366,8 +362,8 @@ After the interview ends, the app generates the three outputs from the accumulat
 *Logic flow:*
 ```
 On arrival:
-  → show Timmy avatar + three-step progress indicator (all pending)
-  → run three LLM calls in sequence:
+  → show Timmy avatar + four-step progress indicator (all pending)
+  → run four generation tasks in sequence:
 
   Step 1: Flowchart generation
     → prompt: full kb[] → structured nodes + edges with classification tags + confidence scores
@@ -384,23 +380,31 @@ On arrival:
   Step 3: SOP generation
     → prompt: full kb[] → structured SOP sections
     → gaps: output "Insufficient data — not covered in interview" — do not invent content
-    → on success: tick step 3 ✓
+    → on success: tick step 3 ✓, start step 4
+    → on failure: show retry for step 3
+
+  Step 4: Transcript generation
+    → Whisper (or ElevenLabs transcript API) → structured turns: [{speaker, text, timestamp}]
+    → speaker labels: "Timmy" for agent turns, "Interviewee" for human turns
+    → on success: tick step 4 ✓
+    → on failure: show retry for step 4
 
   All complete → save outputs to local storage → update status to "complete" → navigate to OutputScreen
 ```
 
 **Constraints**
-- Do not run the three calls in parallel — run sequentially so progress is visible
+- Do not run the four tasks in parallel — run sequentially so progress is visible
 - Do not hallucinate content for gaps — use the explicit gap marker string
 - Do not allow the user to navigate back during generation
 - Do not show raw LLM output — parse into structured schema before saving
 
 **Definition of Done**
-- [ ] Three-step progress indicator shown on arrival, all steps starting as pending
-- [ ] Steps tick off one at a time as each LLM call completes
-- [ ] Flowchart output is saved as structured nodes + edges with classification tags and confidence scores
-- [ ] SIPOC output is saved as structured rows matching the SIPOC schema
-- [ ] SOP output is saved with all seven sections; gaps use the explicit marker string, not invented content
+- [ ] Four-step progress indicator shown on arrival, all steps starting as pending
+- [ ] Steps tick off one at a time as each task completes
+- [ ] Flowchart output saved as structured nodes + edges with classification tags and confidence scores
+- [ ] SIPOC output saved as structured rows matching the SIPOC schema
+- [ ] SOP output saved with all seven sections; gaps use the explicit marker string, not invented content
+- [ ] Transcript output saved as `{ turns: [{speaker, text, timestamp}] }`; speaker labels are "Timmy" or "Interviewee"
 - [ ] On full success, project status updates to `complete` and app navigates to `OutputScreen`
 - [ ] If any step fails, that step shows an error with a "Retry" button — succeeded steps are not re-run
 
@@ -409,13 +413,13 @@ On arrival:
 ## User Story — Step 8: Output Screen
 
 **Goal**
-The solutions engineer reviews the three outputs and copies what they need. This is the demo closer — the screen that shows what no competitor produces in one place.
+The solutions engineer reviews all four outputs and copies what they need. This is the demo closer — the screen that shows what no competitor produces in one place.
 
 **Screen name**
 `OutputScreen`
 
 **Data**
-- Reads: `outputs` object from current project in local storage (`flowchart`, `sipoc`, `sop`)
+- Reads: `outputs` object from current project in local storage (`flowchart`, `sipoc`, `sop`, `transcript`)
 - Writes: nothing — read-only screen. Copy to clipboard is client-side only.
 
 **Context**
@@ -426,12 +430,11 @@ The solutions engineer reviews the three outputs and copies what they need. This
 ```
 On arrival:
   → read outputs from current project in local storage
-  → render three tabs: Flowchart (default) / SIPOC / SOP
+  → render four tabs: Flowchart (default) / SIPOC / SOP / Transcript
   → no re-generation on tab switch
 
 Flowchart tab:
-  → render nodes using Aqib's existing flowchart renderer
-  → each node: step name, actor, classification tag badge, confidence score
+  → render nodes with step name, actor, classification tag badge, confidence score
   → colour-code by classification: Deterministic / Agentic / RPA Bridge
 
 SIPOC tab:
@@ -442,25 +445,32 @@ SOP tab:
   → render as structured text with section headings
   → gap marker displayed as dimmed/italic text
 
+Transcript tab:
+  → render as a turn-by-turn conversation log
+  → each turn: speaker label (Timmy / Interviewee), timestamp, spoken text
+  → Timmy turns in blue; Interviewee turns in green
+
 Copy to clipboard (per tab):
-  → Flowchart: copy node list as plain text
-  → SIPOC: copy as tab-separated table
+  → Flowchart: copy node list as plain text (one line per node)
+  → SIPOC: copy as tab-separated table with header row
   → SOP: copy as plain text with section headings
+  → Transcript: copy as "[timestamp] Speaker: text" per turn, separated by blank lines
 ```
 
 **Constraints**
 - Do not add download as file — clipboard only for MVP
 - Do not re-run generation from this screen
 - Do not allow editing of outputs
-- Do not rebuild the flowchart renderer — wire Aqib's existing renderer to the output data
 - Gap marker text must be visually distinct (dimmed or italic) — not styled the same as real content
+- Switching tabs must never trigger a re-generation call
 
 **Definition of Done**
-- [ ] Screen shows three tabs: Flowchart, SIPOC, SOP — Flowchart is default
-- [ ] Flowchart tab renders all nodes with step name, actor, classification tag, and confidence score using Aqib's existing renderer
+- [ ] Screen shows four tabs: Flowchart, SIPOC, SOP, Transcript — Flowchart is default
+- [ ] Flowchart tab renders all nodes with step name, actor, classification tag, and confidence score
 - [ ] Classification tags are colour-coded: Deterministic / Agentic / RPA Bridge each have a distinct colour
 - [ ] SIPOC tab renders a five-column table with correct row data
 - [ ] SOP tab renders all seven sections with correct headings; gap markers are visually dimmed/italic
+- [ ] Transcript tab renders all turns with speaker label, timestamp, and text; Timmy and Interviewee turns are visually distinct
 - [ ] Switching tabs does not re-generate content
-- [ ] "Copy to clipboard" works per tab and copies the correct format
-- [ ] "Back to project" link navigates to `ProjectList`
+- [ ] "Copy to clipboard" works per tab and copies the correct format for that tab
+- [ ] "Back to projects" link navigates to `ProjectList`

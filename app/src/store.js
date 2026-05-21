@@ -15,10 +15,12 @@ const SEED_PROJECT = {
   ],
   kb: [],
   meetUrl: '',
+  interviewMode: 'voice',
   outputs: {
     flowchart: { nodes: [], edges: [] },
     sipoc: null,
     sop: null,
+    transcript: { turns: [] },
   },
   pctUnderstood: 100,
   lastActivity: 'Mar 14',
@@ -41,7 +43,13 @@ export const useStore = create((set, get) => ({
       goals: [],
       kb: [],
       meetUrl: '',
-      outputs: { flowchart: { nodes: [], edges: [] }, sipoc: null, sop: null },
+      interviewMode: 'voice',
+      outputs: {
+        flowchart: { nodes: [], edges: [] },
+        sipoc: null,
+        sop: null,
+        transcript: { turns: [] },
+      },
       pctUnderstood: 0,
       lastActivity: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
       seed: false,
@@ -72,5 +80,9 @@ export const useStore = create((set, get) => ({
 
   setMeetUrl: (id, url) => {
     get().updateProject(id, { meetUrl: url });
+  },
+
+  setInterviewMode: (id, mode) => {
+    get().updateProject(id, { interviewMode: mode });
   },
 }));

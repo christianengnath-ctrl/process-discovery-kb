@@ -496,3 +496,106 @@ textarea.input { min-height: 180px; resize: vertical; line-height: 1.55; }
   letter-spacing: 0.04em;
   font-variant-numeric: tabular-nums;
 }
+
+/* ---- Mode selector cards (InterviewSetup) ---- */
+.mode-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  background: var(--beam-w-06);
+  border: 1px solid var(--beam-w-12);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  transition: background 150ms, border-color 150ms;
+  font-family: var(--font-sans);
+  color: var(--fg-on-dark);
+}
+.mode-card:hover { background: var(--beam-w-12); }
+.mode-card.selected {
+  border-color: rgba(81,162,255,0.55);
+  background: rgba(0,97,255,0.08);
+}
+.mode-card-icon { font-size: 22px; flex-shrink: 0; }
+.mode-card-title { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+.mode-card-desc { font-size: 13px; color: var(--fg-on-dark-3); line-height: 1.4; }
+.mode-radio {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--beam-w-25);
+  flex-shrink: 0;
+  margin-left: auto;
+  transition: border-color 150ms, background 150ms;
+}
+.mode-radio.checked {
+  border-color: var(--beam-blue-300);
+  background: radial-gradient(circle at center, var(--beam-blue-300) 40%, transparent 42%);
+}
+
+/* ---- Screen capture preview (InterviewInProgress voice+screen mode) ---- */
+.screen-capture-wrap {
+  position: relative;
+  margin-bottom: 24px;
+}
+.screen-capture-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(64,255,26,0.12);
+  border: 1px solid rgba(64,255,26,0.3);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--beam-green);
+  letter-spacing: 0.05em;
+}
+.screen-capture-preview {
+  width: 480px;
+  max-width: 100%;
+  height: 270px;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid var(--beam-w-12);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--fg-on-dark-3);
+}
+
+/* ---- Transcript view (Outputs) ---- */
+.transcript-turn {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.transcript-turn-meta {
+  flex-shrink: 0;
+  width: 90px;
+  padding-top: 2px;
+}
+.transcript-turn-speaker {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.transcript-turn-speaker.timmy { color: var(--beam-blue-300); }
+.transcript-turn-speaker.interviewee { color: var(--beam-green-soft); }
+.transcript-turn-ts {
+  font-size: 11px;
+  color: var(--fg-on-dark-3);
+  font-family: var(--font-mono);
+}
+.transcript-turn-text {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--fg-on-dark-2);
+}

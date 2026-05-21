@@ -36,6 +36,20 @@ const SOP_SECTIONS = [
   { h: '7. Approvals', body: 'Process owner: AP Manager. Reviewed quarterly.' },
 ];
 
+const TRANSCRIPT_TURNS = [
+  { speaker: 'Timmy',       text: "Hi, I'm Timmy from Beam AI. I'm here to learn about your refund request process. Can you walk me through what happens from the moment a refund request comes in?", ts: '0:00' },
+  { speaker: 'Interviewee', text: "Sure. So a customer submits a refund request either via our portal or by calling in. Our AP clerk logs it into SAP and we send an acknowledgement email.", ts: '0:18' },
+  { speaker: 'Timmy',       text: "Got it. Who reviews the request after it's logged, and is there a threshold where different people need to get involved?", ts: '0:42' },
+  { speaker: 'Interviewee', text: "Yeah, anything under five hundred dollars the AP clerk can approve directly. Over five hundred it goes to the AP Manager. And if it's over two thousand we need VP sign-off.", ts: '0:55' },
+  { speaker: 'Timmy',       text: "Understood. What systems are involved in processing the payout once it's approved?", ts: '1:28' },
+  { speaker: 'Interviewee', text: "SAP handles both the logging and the payout. Finance uses the reporting dashboard to track outstanding refunds. Customer gets notified by email when the payout is done.", ts: '1:38' },
+  { speaker: 'Timmy',       text: "Are there any common exceptions or edge cases that slow things down?", ts: '2:10' },
+  { speaker: 'Interviewee', text: "Duplicates are the main one — we have to hold those pending review. Missing invoice is another common one. And anything with a disputed amount usually needs extra back-and-forth with the customer.", ts: '2:18' },
+  { speaker: 'Timmy',       text: "That's really helpful. Last question — who owns this process and how often is it reviewed?", ts: '2:52' },
+  { speaker: 'Interviewee', text: "AP Manager is the process owner. We review the SOP quarterly or whenever there's a major system change.", ts: '3:02' },
+  { speaker: 'Timmy',       text: "Perfect. I think I have what I need. Thank you for your time — this gives us a solid base to build the automation.", ts: '3:14' },
+];
+
 function FlowNode({ name, actor, kind, conf, x, y, w, h }) {
   const c = CLASS_COLOR[kind];
   return (
@@ -173,6 +187,35 @@ function SopView() {
   );
 }
 
+function TranscriptView() {
+  return (
+    <div>
+      <div className="row between" style={{ marginBottom: 20, alignItems: 'flex-end' }}>
+        <div>
+          <div style={{ fontSize: 17, fontWeight: 500, marginBottom: 4 }}>Interview transcript — Refund request handling</div>
+          <div className="muted" style={{ fontSize: 13 }}>Auto-transcribed · {TRANSCRIPT_TURNS.length} turns · 3 min 14 sec</div>
+        </div>
+        <span className="chip" style={{ fontSize: 11, padding: '4px 10px' }}>
+          <span className="dot" style={{ background: 'var(--beam-green)' }} /> Complete
+        </span>
+      </div>
+      <div className="card padded" style={{ maxHeight: 480, overflowY: 'auto' }}>
+        {TRANSCRIPT_TURNS.map((turn, i) => (
+          <div key={i} className="transcript-turn">
+            <div className="transcript-turn-meta">
+              <div className={`transcript-turn-speaker ${turn.speaker === 'Timmy' ? 'timmy' : 'interviewee'}`}>
+                {turn.speaker}
+              </div>
+              <div className="transcript-turn-ts">{turn.ts}</div>
+            </div>
+            <div className="transcript-turn-text">{turn.text}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function Outputs() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -183,17 +226,25 @@ export function Outputs() {
   if (!project) { navigate('/'); return null; }
 
   const tabs = [
-    { id: 'flowchart', label: 'Flowchart',  sub: 'Process map' },
-    { id: 'sipoc',     label: 'SIPOC',      sub: 'Share with client' },
-    { id: 'sop',       label: 'SOP',        sub: "Client's records" },
+    { id: 'flowchart',  label: 'Flowchart',  sub: 'Process map' },
+    { id: 'sipoc',      label: 'SIPOC',      sub: 'Share with client' },
+    { id: 'sop',        label: 'SOP',        sub: "Client's records" },
+    { id: 'transcript', label: 'Transcript', sub: 'Full interview' },
   ];
 
   function getContent() {
-    if (tab === 'flowchart') return tab === 'flowchart' ? 'Flowchart content copied.' : '';
-    if (tab === 'sipoc') {
-      return SIPOC_ROWS.map(r => r.join('\t')).join('\n');
+    if (tab === 'flowchart') {
+      return NODES.map(n => `${n.name} (${n.actor}) — ${n.kind} ${n.conf}%`).join('\n');
     }
-    return SOP_SECTIONS.map(s => `${s.h}\n${s.body}`).join('\n\n');
+    if (tab === 'sipoc') {
+      return ['Suppliers\tInputs\tProcess\tOutputs\tCustomers',
+        ...SIPOC_ROWS.map(r => r.join('\t'))].join('\n');
+    }
+    if (tab === 'sop') {
+      return SOP_SECTIONS.map(s => `${s.h}\n${s.body}`).join('\n\n');
+    }
+    // transcript
+    return TRANSCRIPT_TURNS.map(t => `[${t.ts}] ${t.speaker}: ${t.text}`).join('\n\n');
   }
 
   function copyTab() {
@@ -220,9 +271,10 @@ export function Outputs() {
       </div>
 
       <div className="screen-body" style={{ padding: '28px 32px 40px' }}>
-        {tab === 'flowchart' && <FlowchartView />}
-        {tab === 'sipoc'     && <SipocView />}
-        {tab === 'sop'       && <SopView />}
+        {tab === 'flowchart'  && <FlowchartView />}
+        {tab === 'sipoc'      && <SipocView />}
+        {tab === 'sop'        && <SopView />}
+        {tab === 'transcript' && <TranscriptView />}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppNav } from '../components/AppNav';
 import { Timmy } from '../components/Timmy';
@@ -28,6 +28,7 @@ export function InterviewInProgress() {
   if (!project) { navigate('/'); return null; }
 
   const goals = project.goals ?? [];
+  const isScreenMode = project.interviewMode === 'voice+screen';
 
   function handleEnd() {
     if (!confirmEnd) { setConfirmEnd(true); return; }
@@ -46,9 +47,20 @@ export function InterviewInProgress() {
 
         <Timmy size={180} state="speaking" label />
 
-        <div className="timer mt-32">{timer}</div>
+        {isScreenMode && (
+          <div className="screen-capture-wrap mt-32">
+            <span className="screen-capture-badge">● Recording</span>
+            <div className="screen-capture-preview">
+              Screen capture active
+            </div>
+          </div>
+        )}
+
+        <div className={`timer ${isScreenMode ? 'mt-16' : 'mt-32'}`}>{timer}</div>
         <p className="muted mt-8" style={{ fontSize: 14 }}>
-          Timmy is on the call. The page won't update until the interview ends.
+          {isScreenMode
+            ? "Timmy is recording. The page won't update until the interview ends."
+            : "Timmy is on the call. The page won't update until the interview ends."}
         </p>
 
         {goals.length > 0 && (

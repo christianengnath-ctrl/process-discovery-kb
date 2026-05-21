@@ -4,24 +4,36 @@ import { AppNav } from '../components/AppNav';
 import { Timmy } from '../components/Timmy';
 import { useStore } from '../store';
 
+const MODES = [
+  {
+    id: 'voice',
+    icon: '🎤',
+    title: 'Voice only',
+    desc: 'Timmy asks questions, you answer out loud. No recording needed.',
+  },
+  {
+    id: 'voice+screen',
+    icon: '🖥',
+    title: 'Voice + Screen recording',
+    desc: 'Timmy asks questions while capturing your screen. Best for process mapping.',
+  },
+];
+
 export function InterviewSetup() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { projects, setMeetUrl, updateProject } = useStore();
+  const { projects, updateProject } = useStore();
   const project = projects.find(p => p.id === id);
-  const [meetUrl, setUrl] = useState(project?.meetUrl ?? '');
-  const [launching, setLaunching] = useState(false);
+  const [mode, setMode] = useState('voice');
+  const [starting, setStarting] = useState(false);
 
   if (!project) { navigate('/'); return null; }
 
-  const validUrl = meetUrl.trim().startsWith('https://meet.google.com/');
-
-  async function handleLaunch() {
-    setLaunching(true);
-    setMeetUrl(id, meetUrl.trim());
-    // Simulated bot join — wire real Recall.ai call here
-    await new Promise(r => setTimeout(r, 1400));
-    updateProject(id, { status: 'interviewing' });
+  async function handleStart() {
+    setStarting(true);
+    updateProject(id, { interviewMode: mode, status: 'interviewing' });
+    // Brief transition delay so state write is flushed before navigation
+    await new Promise(r => setTimeout(r, 400));
     navigate(`/projects/${id}/live`);
   }
 
@@ -33,23 +45,24 @@ export function InterviewSetup() {
 
         <h2 className="screen-title mt-32">Ready to start the interview</h2>
         <p className="screen-sub" style={{ maxWidth: 500 }}>
-          Timmy will join the call as a participant and conduct the interview.
-          You'll see his status here while the session runs.
+          Choose how you'd like Timmy to conduct the interview.
         </p>
 
-        <div style={{ width: '100%', maxWidth: 520 }}>
-          <label className="input-label" style={{ textAlign: 'left' }}>Google Meet link</label>
-          <div className="row gap-8">
-            <input
-              className="input grow"
-              placeholder="https://meet.google.com/abc-defg-hij"
-              value={meetUrl}
-              onChange={e => setUrl(e.target.value)}
-            />
-          </div>
-          <div className="input-helper" style={{ textAlign: 'left' }}>
-            Timmy will request entry as <b style={{ color: 'var(--fg-on-dark-2)' }}>Timmy (Beam AI)</b>. Admit him from the waiting room.
-          </div>
+        <div className="col gap-12 mt-32" style={{ width: '100%', maxWidth: 520 }}>
+          {MODES.map(m => (
+            <button
+              key={m.id}
+              className={`mode-card ${mode === m.id ? 'selected' : ''}`}
+              onClick={() => setMode(m.id)}
+            >
+              <span className="mode-card-icon">{m.icon}</span>
+              <div className="col" style={{ gap: 4 }}>
+                <div className="mode-card-title">{m.title}</div>
+                <div className="mode-card-desc">{m.desc}</div>
+              </div>
+              <span className={`mode-radio ${mode === m.id ? 'checked' : ''}`} />
+            </button>
+          ))}
         </div>
 
         <div className="row gap-8 mt-32" style={{ flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -62,18 +75,12 @@ export function InterviewSetup() {
           <button className="btn ghost" onClick={() => navigate(`/projects/${id}/goals`)}>← Back to goals</button>
           <button
             className="btn primary lg"
-            disabled={!validUrl || launching}
-            onClick={handleLaunch}
+            disabled={starting}
+            onClick={handleStart}
           >
-            {launching ? '◌ Joining…' : '▶ Launch Timmy'}
+            {starting ? '◌ Starting…' : '▶ Start interview'}
           </button>
         </div>
-
-        {!validUrl && meetUrl.length > 0 && (
-          <p style={{ marginTop: 12, fontSize: 13, color: 'rgb(255,150,150)' }}>
-            Please enter a valid meet.google.com link
-          </p>
-        )}
       </div>
     </div>
   );
