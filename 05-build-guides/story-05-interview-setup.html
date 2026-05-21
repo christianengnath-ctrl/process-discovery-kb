@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Story 05 — Interview Setup · Process Discovery</title>
+<style>
+  :root {
+    --bg:        #0d0d0d;
+    --surface:   #111;
+    --border:    #222;
+    --text:      #e8e8e8;
+    --text-2:    #aaa;
+    --text-3:    #666;
+    --accent:    #e8e8e8;
+    --muted:     #888;
+    --radius:    16px;
+    --font-mono: 'SF Mono', 'Fira Mono', 'Cascadia Code', monospace;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 0 0 100px;
+  }
+
+  .page { max-width: 980px; margin: 0 auto; padding: 0 36px; }
+
+  /* Hero */
+  .hero {
+    padding: 56px 0 44px;
+    border-bottom: 1px solid #1e1e1e;
+    margin-bottom: 52px;
+  }
+  .hero-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .hero h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+    margin-bottom: 18px;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .meta-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-2);
+  }
+  .meta-pill code {
+    font-family: var(--font-mono);
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    color: #bbb;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.04em;
+    padding: 3px 12px;
+    border-radius: 20px;
+    background: #1a1a1a;
+    color: #888;
+    border: 1px solid #2a2a2a;
+  }
+
+  /* Sections */
+  section { margin-bottom: 60px; }
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #1e1e1e;
+  }
+  h2 {
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .section-desc {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 26px;
+    max-width: 620px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 26px;
+  }
+  .card-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  @media (max-width: 640px) { .card-row { grid-template-columns: 1fr; } }
+
+  /* SVG wrapper */
+  .svg-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  svg { display: block; }
+
+  /* Wireframe caption */
+  .wf-caption {
+    padding: 12px 20px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-3);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .wf-caption strong { color: var(--muted); }
+
+  /* Constraints grid */
+  .constraints-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .constraint {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #0f0f0f;
+    border: 1px solid #1e1e1e;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 12.5px;
+    color: var(--text-2);
+  }
+  .constraint .no-icon {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    background: #1e1e1e;
+    color: #666;
+    border-radius: 4px;
+    padding: 2px 6px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* DoD checklist */
+  .dod-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .dod-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 12.5px;
+    color: var(--text-2);
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #0f0f0f;
+    border: 1px solid #1a1a1a;
+  }
+  .dod-check {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid #333;
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    background: #111;
+  }
+
+  /* Anatomy table */
+  .anatomy-table { width: 100%; border-collapse: collapse; }
+  .anatomy-table th {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    padding: 0 14px 10px;
+    border-bottom: 1px solid #1e1e1e;
+  }
+  .anatomy-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #1a1a1a;
+    vertical-align: top;
+    font-size: 12.5px;
+    color: var(--text-2);
+  }
+  .anatomy-table tr:last-child td { border-bottom: none; }
+  .anatomy-table code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #aaa;
+    background: #1a1a1a;
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  /* handleStart flow */
+  .flow-box {
+    background: #0f0f0f;
+    border: 1px solid #1e1e1e;
+    border-radius: 12px;
+    padding: 20px 24px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #bbb;
+    line-height: 2;
+  }
+  .flow-box .step-num {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    text-align: center;
+    line-height: 20px;
+    font-size: 10px;
+    color: #888;
+    margin-right: 8px;
+  }
+  .flow-box .delay { color: #f0c060; }
+  .flow-box .nav { color: #88aaff; }
+  .flow-box .state { color: #88cc88; }
+  .flow-box .comment { color: #555; font-style: italic; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ══════════════════════════════════════════════════════ HERO -->
+  <div class="hero">
+    <div class="hero-label">Process Discovery · Build Guide</div>
+    <h1>Story 05 — Interview Setup</h1>
+    <div class="hero-meta">
+      <div class="meta-pill">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L7 13M1 7L13 7" stroke="#666" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Route <code>/projects/:id/setup</code>
+      </div>
+      <div class="meta-pill">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="1.5" width="11" height="11" rx="2" stroke="#666" stroke-width="1.3"/></svg>
+        File <code>src/screens/InterviewSetup.jsx</code>
+      </div>
+      <div class="meta-pill">
+        Layout <code>screen-body center</code>
+      </div>
+      <span class="badge">Pre-interview config · Last step before live</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ WIREFRAME A -->
+  <section>
+    <div class="section-label">Wireframe A</div>
+    <h2>Voice only selected (default state)</h2>
+    <p class="section-desc">Default render. Mode "voice" pre-selected. Content centred vertically and horizontally. No step indicator.</p>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 800 560" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <rect width="800" height="560" fill="#f0f0f0"/>
+
+        <!-- Nav bar -->
+        <rect width="800" height="40" fill="#fff" stroke="#ddd" stroke-width="1"/>
+        <text x="16" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#555">Process Discovery</text>
+        <text x="145" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#999">›</text>
+        <text x="155" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#555">Acme Logistics · Refund request handling</text>
+        <text x="387" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#999">›</text>
+        <text x="397" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#333" font-weight="600">Interview</text>
+
+        <!-- Center column — everything centred at x=400 -->
+
+        <!-- Timmy large avatar (140px) -->
+        <circle cx="400" cy="130" r="70" fill="#fff" stroke="#333" stroke-width="2"/>
+        <!-- Stylized face -->
+        <circle cx="383" cy="122" r="7" fill="#555"/>
+        <circle cx="417" cy="122" r="7" fill="#555"/>
+        <path d="M385 148 Q400 160 415 148" stroke="#555" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- Decorative ring -->
+        <circle cx="400" cy="130" r="62" fill="none" stroke="#e0e0e0" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <circle cx="400" cy="130" r="54" fill="none" stroke="#eee" stroke-width="1" stroke-dasharray="2 6"/>
+        <!-- Timmy label -->
+        <text x="400" y="218" font-family="system-ui,sans-serif" font-size="12" fill="#999" text-anchor="middle">Timmy · Beam AI</text>
+
+        <!-- Heading -->
+        <text x="400" y="252" font-family="system-ui,sans-serif" font-size="20" fill="#222" text-anchor="middle" font-weight="700">Ready to start the interview</text>
+        <text x="400" y="274" font-family="system-ui,sans-serif" font-size="13" fill="#888" text-anchor="middle">Choose how you'd like Timmy to conduct the interview.</text>
+
+        <!-- Mode card 1 — SELECTED (Voice only) -->
+        <rect x="140" y="294" width="520" height="66" rx="10" fill="#ececec" stroke="#333" stroke-width="2"/>
+        <!-- Icon box -->
+        <rect x="156" y="308" width="38" height="38" rx="6" fill="#e0e0e0" stroke="#bbb" stroke-width="1"/>
+        <text x="175" y="332" font-family="system-ui,sans-serif" font-size="18" text-anchor="middle">🎤</text>
+        <!-- Title + desc -->
+        <text x="204" y="320" font-family="system-ui,sans-serif" font-size="13" fill="#222" font-weight="700">Voice only</text>
+        <text x="204" y="337" font-family="system-ui,sans-serif" font-size="11" fill="#666">Timmy asks questions, you answer out loud. No recording needed.</text>
+        <!-- Radio dot — FILLED (selected) -->
+        <circle cx="626" cy="327" r="10" fill="#fff" stroke="#333" stroke-width="1.5"/>
+        <circle cx="626" cy="327" r="5" fill="#333"/>
+
+        <!-- Mode card 2 — unselected (Voice + Screen) -->
+        <rect x="140" y="370" width="520" height="66" rx="10" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <rect x="156" y="384" width="38" height="38" rx="6" fill="#f5f5f5" stroke="#ccc" stroke-width="1"/>
+        <text x="175" y="408" font-family="system-ui,sans-serif" font-size="18" text-anchor="middle">🖥</text>
+        <text x="204" y="396" font-family="system-ui,sans-serif" font-size="13" fill="#444">Voice + Screen recording</text>
+        <text x="204" y="413" font-family="system-ui,sans-serif" font-size="11" fill="#999">Timmy asks questions while capturing your screen. Best for process mapping.</text>
+        <!-- Radio dot — EMPTY (unselected) -->
+        <circle cx="626" cy="403" r="10" fill="#fff" stroke="#bbb" stroke-width="1.5"/>
+
+        <!-- Summary chips row -->
+        <!-- Chip 1 -->
+        <rect x="180" y="452" width="120" height="26" rx="13" fill="#eee" stroke="#ccc" stroke-width="1"/>
+        <circle cx="198" cy="465" r="4" fill="#888"/>
+        <text x="210" y="469" font-family="system-ui,sans-serif" font-size="11" fill="#555">3 goals to cover</text>
+        <!-- Chip 2 -->
+        <rect x="312" y="452" width="114" height="26" rx="13" fill="#eee" stroke="#ccc" stroke-width="1"/>
+        <circle cx="330" cy="465" r="4" fill="#888"/>
+        <text x="342" y="469" font-family="system-ui,sans-serif" font-size="11" fill="#555">Context loaded</text>
+        <!-- Chip 3 -->
+        <rect x="438" y="452" width="116" height="26" rx="13" fill="#eee" stroke="#ccc" stroke-width="1"/>
+        <circle cx="456" cy="465" r="4" fill="#888"/>
+        <text x="468" y="469" font-family="system-ui,sans-serif" font-size="11" fill="#555">Voice: ElevenLabs</text>
+
+        <!-- Button row -->
+        <!-- Back button (ghost) -->
+        <rect x="222" y="496" width="134" height="36" rx="7" fill="#fff" stroke="#bbb" stroke-width="1" stroke-dasharray="5 3"/>
+        <text x="289" y="519" font-family="system-ui,sans-serif" font-size="12.5" fill="#555" text-anchor="middle">← Back to goals</text>
+        <!-- Start button (primary, active) -->
+        <rect x="368" y="496" width="162" height="36" rx="7" fill="#222" stroke="#222" stroke-width="1"/>
+        <text x="449" y="519" font-family="system-ui,sans-serif" font-size="12.5" fill="#fff" text-anchor="middle">▶ Start interview</text>
+      </svg>
+      <div class="wf-caption"><strong>A</strong> · Voice only selected (default) · Centred layout · No step indicator · Start button enabled</div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ WIREFRAME B -->
+  <section>
+    <div class="section-label">Wireframe B</div>
+    <h2>Voice + Screen recording selected</h2>
+    <p class="section-desc">User has clicked card 2. Card 2 gains bold border and selected fill; card 1 returns to unselected state.</p>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 800 560" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <rect width="800" height="560" fill="#f0f0f0"/>
+
+        <!-- Nav bar -->
+        <rect width="800" height="40" fill="#fff" stroke="#ddd" stroke-width="1"/>
+        <text x="16" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#555">Process Discovery</text>
+        <text x="145" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#999">›</text>
+        <text x="155" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#555">Acme Logistics · Refund request handling</text>
+        <text x="387" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#999">›</text>
+        <text x="397" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#333" font-weight="600">Interview</text>
+
+        <!-- Timmy -->
+        <circle cx="400" cy="130" r="70" fill="#fff" stroke="#333" stroke-width="2"/>
+        <circle cx="383" cy="122" r="7" fill="#555"/>
+        <circle cx="417" cy="122" r="7" fill="#555"/>
+        <path d="M385 148 Q400 160 415 148" stroke="#555" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <circle cx="400" cy="130" r="62" fill="none" stroke="#e0e0e0" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <circle cx="400" cy="130" r="54" fill="none" stroke="#eee" stroke-width="1" stroke-dasharray="2 6"/>
+        <text x="400" y="218" font-family="system-ui,sans-serif" font-size="12" fill="#999" text-anchor="middle">Timmy · Beam AI</text>
+
+        <!-- Heading -->
+        <text x="400" y="252" font-family="system-ui,sans-serif" font-size="20" fill="#222" text-anchor="middle" font-weight="700">Ready to start the interview</text>
+        <text x="400" y="274" font-family="system-ui,sans-serif" font-size="13" fill="#888" text-anchor="middle">Choose how you'd like Timmy to conduct the interview.</text>
+
+        <!-- Mode card 1 — UNSELECTED now -->
+        <rect x="140" y="294" width="520" height="66" rx="10" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <rect x="156" y="308" width="38" height="38" rx="6" fill="#f5f5f5" stroke="#ccc" stroke-width="1"/>
+        <text x="175" y="332" font-family="system-ui,sans-serif" font-size="18" text-anchor="middle">🎤</text>
+        <text x="204" y="320" font-family="system-ui,sans-serif" font-size="13" fill="#444">Voice only</text>
+        <text x="204" y="337" font-family="system-ui,sans-serif" font-size="11" fill="#999">Timmy asks questions, you answer out loud. No recording needed.</text>
+        <!-- Radio dot — EMPTY -->
+        <circle cx="626" cy="327" r="10" fill="#fff" stroke="#bbb" stroke-width="1.5"/>
+
+        <!-- Mode card 2 — SELECTED now -->
+        <rect x="140" y="370" width="520" height="66" rx="10" fill="#ececec" stroke="#333" stroke-width="2"/>
+        <rect x="156" y="384" width="38" height="38" rx="6" fill="#e0e0e0" stroke="#bbb" stroke-width="1"/>
+        <text x="175" y="408" font-family="system-ui,sans-serif" font-size="18" text-anchor="middle">🖥</text>
+        <text x="204" y="396" font-family="system-ui,sans-serif" font-size="13" fill="#222" font-weight="700">Voice + Screen recording</text>
+        <text x="204" y="413" font-family="system-ui,sans-serif" font-size="11" fill="#666">Timmy asks questions while capturing your screen. Best for process mapping.</text>
+        <!-- Radio dot — FILLED -->
+        <circle cx="626" cy="403" r="10" fill="#fff" stroke="#333" stroke-width="1.5"/>
+        <circle cx="626" cy="403" r="5" fill="#333"/>
+
+        <!-- Chips -->
+        <rect x="180" y="452" width="120" height="26" rx="13" fill="#eee" stroke="#ccc" stroke-width="1"/>
+        <circle cx="198" cy="465" r="4" fill="#888"/>
+        <text x="210" y="469" font-family="system-ui,sans-serif" font-size="11" fill="#555">3 goals to cover</text>
+        <rect x="312" y="452" width="114" height="26" rx="13" fill="#eee" stroke="#ccc" stroke-width="1"/>
+        <circle cx="330" cy="465" r="4" fill="#888"/>
+        <text x="342" y="469" font-family="system-ui,sans-serif" font-size="11" fill="#555">Context loaded</text>
+        <rect x="438" y="452" width="116" height="26" rx="13" fill="#eee" stroke="#ccc" stroke-width="1"/>
+        <circle cx="456" cy="465" r="4" fill="#888"/>
+        <text x="468" y="469" font-family="system-ui,sans-serif" font-size="11" fill="#555">Voice: ElevenLabs</text>
+
+        <!-- Buttons -->
+        <rect x="222" y="496" width="134" height="36" rx="7" fill="#fff" stroke="#bbb" stroke-width="1" stroke-dasharray="5 3"/>
+        <text x="289" y="519" font-family="system-ui,sans-serif" font-size="12.5" fill="#555" text-anchor="middle">← Back to goals</text>
+        <rect x="368" y="496" width="162" height="36" rx="7" fill="#222" stroke="#222" stroke-width="1"/>
+        <text x="449" y="519" font-family="system-ui,sans-serif" font-size="12.5" fill="#fff" text-anchor="middle">▶ Start interview</text>
+      </svg>
+      <div class="wf-caption"><strong>B</strong> · Voice + Screen recording selected · Card 2 bold border + filled radio · Card 1 unselected</div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ WIREFRAME C -->
+  <section>
+    <div class="section-label">Wireframe C</div>
+    <h2>Starting state — button clicked, 400ms in progress</h2>
+    <p class="section-desc">After "▶ Start interview" is clicked: <code>starting = true</code>. Button disables and shows "◌ Starting…". Back button remains active.</p>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 800 560" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <rect width="800" height="560" fill="#f0f0f0"/>
+
+        <!-- Nav bar -->
+        <rect width="800" height="40" fill="#fff" stroke="#ddd" stroke-width="1"/>
+        <text x="16" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#555">Process Discovery</text>
+        <text x="145" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#999">›</text>
+        <text x="155" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#555">Acme Logistics · Refund request handling</text>
+        <text x="387" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#999">›</text>
+        <text x="397" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#333" font-weight="600">Interview</text>
+
+        <!-- Timmy (same large size) -->
+        <circle cx="400" cy="130" r="70" fill="#fff" stroke="#333" stroke-width="2"/>
+        <circle cx="383" cy="122" r="7" fill="#555"/>
+        <circle cx="417" cy="122" r="7" fill="#555"/>
+        <path d="M385 148 Q400 160 415 148" stroke="#555" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <circle cx="400" cy="130" r="62" fill="none" stroke="#e0e0e0" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <circle cx="400" cy="130" r="54" fill="none" stroke="#eee" stroke-width="1" stroke-dasharray="2 6"/>
+        <text x="400" y="218" font-family="system-ui,sans-serif" font-size="12" fill="#999" text-anchor="middle">Timmy · Beam AI</text>
+
+        <!-- Heading -->
+        <text x="400" y="252" font-family="system-ui,sans-serif" font-size="20" fill="#222" text-anchor="middle" font-weight="700">Ready to start the interview</text>
+        <text x="400" y="274" font-family="system-ui,sans-serif" font-size="13" fill="#888" text-anchor="middle">Choose how you'd like Timmy to conduct the interview.</text>
+
+        <!-- Mode cards (voice selected, same as wireframe A — mode selection unchanged) -->
+        <rect x="140" y="294" width="520" height="66" rx="10" fill="#ececec" stroke="#333" stroke-width="2"/>
+        <rect x="156" y="308" width="38" height="38" rx="6" fill="#e0e0e0" stroke="#bbb" stroke-width="1"/>
+        <text x="175" y="332" font-family="system-ui,sans-serif" font-size="18" text-anchor="middle">🎤</text>
+        <text x="204" y="320" font-family="system-ui,sans-serif" font-size="13" fill="#222" font-weight="700">Voice only</text>
+        <text x="204" y="337" font-family="system-ui,sans-serif" font-size="11" fill="#666">Timmy asks questions, you answer out loud. No recording needed.</text>
+        <circle cx="626" cy="327" r="10" fill="#fff" stroke="#333" stroke-width="1.5"/>
+        <circle cx="626" cy="327" r="5" fill="#333"/>
+
+        <rect x="140" y="370" width="520" height="66" rx="10" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <rect x="156" y="384" width="38" height="38" rx="6" fill="#f5f5f5" stroke="#ccc" stroke-width="1"/>
+        <text x="175" y="408" font-family="system-ui,sans-serif" font-size="18" text-anchor="middle">🖥</text>
+        <text x="204" y="396" font-family="system-ui,sans-serif" font-size="13" fill="#444">Voice + Screen recording</text>
+        <text x="204" y="413" font-family="system-ui,sans-serif" font-size="11" fill="#999">Timmy asks questions while capturing your screen. Best for process mapping.</text>
+        <circle cx="626" cy="403" r="10" fill="#fff" stroke="#bbb" stroke-width="1.5"/>
+
+        <!-- Chips -->
+        <rect x="180" y="452" width="120" height="26" rx="13" fill="#eee" stroke="#ccc" stroke-width="1"/>
+        <circle cx="198" cy="465" r="4" fill="#888"/>
+        <text x="210" y="469" font-family="system-ui,sans-serif" font-size="11" fill="#555">3 goals to cover</text>
+        <rect x="312" y="452" width="114" height="26" rx="13" fill="#eee" stroke="#ccc" stroke-width="1"/>
+        <circle cx="330" cy="465" r="4" fill="#888"/>
+        <text x="342" y="469" font-family="system-ui,sans-serif" font-size="11" fill="#555">Context loaded</text>
+        <rect x="438" y="452" width="116" height="26" rx="13" fill="#eee" stroke="#ccc" stroke-width="1"/>
+        <circle cx="456" cy="465" r="4" fill="#888"/>
+        <text x="468" y="469" font-family="system-ui,sans-serif" font-size="11" fill="#555">Voice: ElevenLabs</text>
+
+        <!-- Back button — still active -->
+        <rect x="222" y="496" width="134" height="36" rx="7" fill="#fff" stroke="#bbb" stroke-width="1" stroke-dasharray="5 3"/>
+        <text x="289" y="519" font-family="system-ui,sans-serif" font-size="12.5" fill="#555" text-anchor="middle">← Back to goals</text>
+
+        <!-- Start button — DISABLED starting state -->
+        <rect x="368" y="496" width="162" height="36" rx="7" fill="#d5d5d5" stroke="#bbb" stroke-width="1"/>
+        <text x="449" y="519" font-family="system-ui,sans-serif" font-size="12.5" fill="#999" text-anchor="middle">◌ Starting…</text>
+
+        <!-- Annotation: disabled indicator -->
+        <rect x="368" y="540" width="162" height="14" rx="3" fill="none"/>
+        <text x="449" y="552" font-family="system-ui,sans-serif" font-size="10" fill="#bbb" text-anchor="middle">disabled=true · starting=true</text>
+      </svg>
+      <div class="wf-caption"><strong>C</strong> · starting=true · Button disabled + label "◌ Starting…" · Gray fill · 400ms delay before navigate(/live)</div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ MODE CARD ANATOMY -->
+  <section>
+    <div class="section-label">Component Anatomy</div>
+    <h2>Mode card anatomy</h2>
+    <p class="section-desc">Each mode card is a <code>&lt;button&gt;</code> with 3 zones. The selected card has class <code>mode-card selected</code>.</p>
+    <div class="card-row">
+      <div class="svg-wrap">
+        <svg viewBox="0 0 380 120" xmlns="http://www.w3.org/2000/svg" width="100%">
+          <rect width="380" height="120" fill="#f0f0f0"/>
+          <!-- Card -->
+          <rect x="20" y="20" width="340" height="72" rx="9" fill="#fff" stroke="#ccc" stroke-width="1.5"/>
+          <!-- Zone 1: icon -->
+          <rect x="34" y="34" width="36" height="36" rx="6" fill="#f0f0f0" stroke="#ccc" stroke-width="1"/>
+          <text x="52" y="57" font-family="system-ui,sans-serif" font-size="18" text-anchor="middle">🎤</text>
+          <!-- Zone 2: text -->
+          <text x="80" y="48" font-family="system-ui,sans-serif" font-size="12.5" fill="#333" font-weight="600">Mode title</text>
+          <text x="80" y="63" font-family="system-ui,sans-serif" font-size="10.5" fill="#888">Mode description text here…</text>
+          <!-- Zone 3: radio -->
+          <circle cx="338" cy="56" r="10" fill="#fff" stroke="#ccc" stroke-width="1.5"/>
+
+          <!-- Annotation lines -->
+          <line x1="52" y1="74" x2="52" y2="100" stroke="#aaa" stroke-width="1" stroke-dasharray="2 2"/>
+          <text x="52" y="112" font-family="system-ui,sans-serif" font-size="9" fill="#999" text-anchor="middle">mode-card-icon</text>
+
+          <line x1="150" y1="74" x2="150" y2="100" stroke="#aaa" stroke-width="1" stroke-dasharray="2 2"/>
+          <text x="150" y="112" font-family="system-ui,sans-serif" font-size="9" fill="#999" text-anchor="middle">title + desc (col gap-4)</text>
+
+          <line x1="338" y1="74" x2="338" y2="100" stroke="#aaa" stroke-width="1" stroke-dasharray="2 2"/>
+          <text x="338" y="112" font-family="system-ui,sans-serif" font-size="9" fill="#999" text-anchor="middle">mode-radio</text>
+        </svg>
+        <div class="wf-caption"><strong>Zone map</strong> · Flex row · icon | text | radio</div>
+      </div>
+      <div class="card">
+        <table class="anatomy-table">
+          <thead>
+            <tr>
+              <th>Zone</th>
+              <th>Class</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Icon</td>
+              <td><code>.mode-card-icon</code></td>
+              <td>Emoji, left-aligned. Box sizing via CSS.</td>
+            </tr>
+            <tr>
+              <td>Text</td>
+              <td><code>.col</code> gap-4</td>
+              <td><code>.mode-card-title</code> + <code>.mode-card-desc</code></td>
+            </tr>
+            <tr>
+              <td>Radio</td>
+              <td><code>.mode-radio</code></td>
+              <td>Empty circle when not selected. Add <code>.checked</code> for filled dot.</td>
+            </tr>
+            <tr>
+              <td>Selected</td>
+              <td><code>.mode-card.selected</code></td>
+              <td>Bold border (#333, 2px). Darker fill (#ececec). Filled radio.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ CHIPS EXPLANATION -->
+  <section>
+    <div class="section-label">Summary Chips</div>
+    <h2>What each chip displays</h2>
+    <p class="section-desc">Three chips centred below mode cards. Static at runtime — no conditional rendering, just conditional content on chip 2.</p>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 800 100" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <rect width="800" height="100" fill="#f0f0f0"/>
+
+        <!-- Chip 1 -->
+        <rect x="100" y="30" width="158" height="32" rx="16" fill="#e8e8e8" stroke="#ccc" stroke-width="1"/>
+        <circle cx="118" cy="46" r="5" fill="#888"/>
+        <text x="131" y="50" font-family="system-ui,sans-serif" font-size="11.5" fill="#444">3 goals to cover</text>
+
+        <!-- Chip 2 -->
+        <rect x="274" y="30" width="148" height="32" rx="16" fill="#e8e8e8" stroke="#ccc" stroke-width="1"/>
+        <circle cx="292" cy="46" r="5" fill="#888"/>
+        <text x="305" y="50" font-family="system-ui,sans-serif" font-size="11.5" fill="#444">Context loaded</text>
+
+        <!-- Chip 3 -->
+        <rect x="438" y="30" width="154" height="32" rx="16" fill="#e8e8e8" stroke="#ccc" stroke-width="1"/>
+        <circle cx="456" cy="46" r="5" fill="#888"/>
+        <text x="469" y="50" font-family="system-ui,sans-serif" font-size="11.5" fill="#444">Voice: ElevenLabs</text>
+
+        <!-- Annotations below -->
+        <text x="179" y="80" font-family="system-ui,sans-serif" font-size="9.5" fill="#aaa" text-anchor="middle">project.goals.length</text>
+        <text x="348" y="80" font-family="system-ui,sans-serif" font-size="9.5" fill="#aaa" text-anchor="middle">contextBlob ? "Context loaded" : "No context"</text>
+        <text x="515" y="80" font-family="system-ui,sans-serif" font-size="9.5" fill="#aaa" text-anchor="middle">Always static string</text>
+      </svg>
+      <div class="wf-caption"><strong>Chips</strong> · Row, flexWrap, justifyContent center · mt-32 · row gap-8</div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ handleStart FLOW -->
+  <section>
+    <div class="section-label">handleStart Flow</div>
+    <h2>Button click → navigation sequence</h2>
+    <p class="section-desc">Async function with a mandatory 400ms delay. Do not remove the delay — it ensures Zustand write flushes before <code>LiveInterview</code> mounts.</p>
+    <div class="card-row">
+      <div class="flow-box">
+        <span class="step-num">1</span><span class="state">setStarting(true)</span><br/>
+        <span class="comment">&nbsp;&nbsp;&nbsp;// disables button, changes label to "◌ Starting…"</span><br/><br/>
+        <span class="step-num">2</span>updateProject(id, {<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;interviewMode: <span class="state">mode</span>,<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;status: <span class="state">'interviewing'</span><br/>
+        })<br/><br/>
+        <span class="step-num">3</span><span class="delay">await new Promise(r =&gt; setTimeout(r, 400))</span><br/>
+        <span class="comment">&nbsp;&nbsp;&nbsp;// 400ms — intentional, do not remove</span><br/><br/>
+        <span class="step-num">4</span><span class="nav">navigate(`/projects/${"{id}"}/live`)</span>
+      </div>
+      <div class="svg-wrap">
+        <svg viewBox="0 0 360 240" xmlns="http://www.w3.org/2000/svg" width="100%">
+          <rect width="360" height="240" fill="#f0f0f0"/>
+
+          <!-- click -->
+          <rect x="120" y="12" width="120" height="32" rx="7" fill="#222" stroke="#333" stroke-width="1.5"/>
+          <text x="180" y="33" font-family="system-ui,sans-serif" font-size="11.5" fill="#fff" text-anchor="middle">▶ Start interview</text>
+          <line x1="180" y1="44" x2="180" y2="58" stroke="#777" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+          <!-- setStarting -->
+          <rect x="90" y="58" width="180" height="28" rx="6" fill="#e8e8e8" stroke="#999" stroke-width="1"/>
+          <text x="180" y="76" font-family="system-ui,sans-serif" font-size="11" fill="#333" text-anchor="middle">setStarting(true)</text>
+          <line x1="180" y1="86" x2="180" y2="100" stroke="#777" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+          <!-- updateProject -->
+          <rect x="75" y="100" width="210" height="28" rx="6" fill="#e8e8e8" stroke="#999" stroke-width="1"/>
+          <text x="180" y="118" font-family="system-ui,sans-serif" font-size="11" fill="#333" text-anchor="middle">updateProject(id, {...})</text>
+          <line x1="180" y1="128" x2="180" y2="142" stroke="#777" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+          <!-- 400ms delay -->
+          <rect x="90" y="142" width="180" height="28" rx="6" fill="#fff8e0" stroke="#e0c060" stroke-width="1.5"/>
+          <text x="180" y="160" font-family="system-ui,sans-serif" font-size="11" fill="#b08000" text-anchor="middle">await 400ms delay</text>
+          <line x1="180" y1="170" x2="180" y2="184" stroke="#777" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+          <!-- navigate -->
+          <rect x="90" y="184" width="180" height="28" rx="6" fill="#e0eaff" stroke="#8899cc" stroke-width="1.5"/>
+          <text x="180" y="202" font-family="system-ui,sans-serif" font-size="11" fill="#334499" text-anchor="middle">navigate(…/live)</text>
+
+          <defs>
+            <marker id="arr2" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0, 7 3, 0 6" fill="#777"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="wf-caption"><strong>handleStart</strong> · Yellow = 400ms intentional delay</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ CONSTRAINTS -->
+  <section>
+    <div class="section-label">Constraints</div>
+    <h2>Do NOT build these</h2>
+    <p class="section-desc">Explicitly out of scope for this story.</p>
+    <div class="constraints-grid">
+      <div class="constraint"><span class="no-icon">NO</span>Step indicator — centred layout, no wizard progress bar</div>
+      <div class="constraint"><span class="no-icon">NO</span>URL validation — no Google Meet URL input or external link field</div>
+      <div class="constraint"><span class="no-icon">NO</span>Recall.ai — no meeting bot or recording service integration</div>
+      <div class="constraint"><span class="no-icon">NO</span>Loading spinner on mount — store is synchronous, guard redirects on missing project</div>
+      <div class="constraint"><span class="no-icon">NO</span>Error state — missing project handled by navigate('/') guard only</div>
+      <div class="constraint"><span class="no-icon">NO</span>Confirmation dialog — clicking Start fires immediately, no "are you sure?"</div>
+      <div class="constraint"><span class="no-icon">NO</span>Mode count badge or indicator in chips</div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ DOD -->
+  <section>
+    <div class="section-label">Definition of Done</div>
+    <h2>Acceptance checklist</h2>
+    <p class="section-desc">All items must pass before marking this story done.</p>
+    <div class="dod-grid">
+      <div class="dod-item"><div class="dod-check"></div>Route /projects/:id/setup with valid id renders InterviewSetup</div>
+      <div class="dod-item"><div class="dod-check"></div>Unknown id navigates to / and returns null</div>
+      <div class="dod-item"><div class="dod-check"></div>Screen uses "screen-body center" — centred vertically + horizontally</div>
+      <div class="dod-item"><div class="dod-check"></div>No step indicator present anywhere on screen</div>
+      <div class="dod-item"><div class="dod-check"></div>&lt;Timmy size={140} state="idle" label /&gt; renders with label visible</div>
+      <div class="dod-item"><div class="dod-check"></div>Title: "Ready to start the interview" with class screen-title mt-32</div>
+      <div class="dod-item"><div class="dod-check"></div>Subtitle uses screen-sub class, maxWidth 500</div>
+      <div class="dod-item"><div class="dod-check"></div>Two mode cards render in order: Voice only → Voice + Screen recording</div>
+      <div class="dod-item"><div class="dod-check"></div>Voice only is pre-selected (.selected + .mode-radio.checked) on first render</div>
+      <div class="dod-item"><div class="dod-check"></div>Clicking non-selected card selects it and deselects the other</div>
+      <div class="dod-item"><div class="dod-check"></div>Each card shows correct icon, title, and description text</div>
+      <div class="dod-item"><div class="dod-check"></div>Chip 1 shows correct goals.length count</div>
+      <div class="dod-item"><div class="dod-check"></div>Chip 2 shows "Context loaded" when contextBlob truthy</div>
+      <div class="dod-item"><div class="dod-check"></div>Chip 2 shows "No context" when contextBlob falsy</div>
+      <div class="dod-item"><div class="dod-check"></div>Chip 3 always shows "Voice: ElevenLabs"</div>
+      <div class="dod-item"><div class="dod-check"></div>Start button label is "▶ Start interview" initially</div>
+      <div class="dod-item"><div class="dod-check"></div>Button not disabled on initial render</div>
+      <div class="dod-item"><div class="dod-check"></div>Click sets starting=true → disabled + label "◌ Starting…"</div>
+      <div class="dod-item"><div class="dod-check"></div>updateProject called with {interviewMode: mode, status: 'interviewing'}</div>
+      <div class="dod-item"><div class="dod-check"></div>400ms setTimeout present and not removed</div>
+      <div class="dod-item"><div class="dod-check"></div>After 400ms, navigates to /projects/:id/live</div>
+      <div class="dod-item"><div class="dod-check"></div>← Back to goals navigates to /projects/:id/goals</div>
+      <div class="dod-item"><div class="dod-check"></div>Back button is never disabled</div>
+      <div class="dod-item"><div class="dod-check"></div>Nav crumbs: "Process Discovery" › "{clientName} · {processName}" › "Interview"</div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

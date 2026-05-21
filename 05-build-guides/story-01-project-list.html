@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Story 01 — Project List · Process Discovery</title>
+<style>
+  :root {
+    --bg:          #0f0f0f;
+    --surface:     #181818;
+    --surface-2:   #222;
+    --border:      rgba(255,255,255,0.08);
+    --border-2:    rgba(255,255,255,0.14);
+    --text:        #f0f0f0;
+    --text-2:      #a0a0a0;
+    --text-3:      #666;
+    --blue:        #5b8ef0;
+    --blue-soft:   rgba(91,142,240,0.15);
+    --green:       #52d48f;
+    --green-soft:  rgba(82,212,143,0.15);
+    --purple:      #a78bfa;
+    --amber:       #f59e0b;
+    --red:         #f87171;
+    --font-mono:   'SF Mono', 'Fira Mono', 'Cascadia Code', monospace;
+    --font-sans:   -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --radius:      10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 0 0 80px;
+  }
+
+  /* ── Layout ─────────────────────────────────────────── */
+  .page { max-width: 960px; margin: 0 auto; padding: 0 32px; }
+
+  /* ── Hero ───────────────────────────────────────────── */
+  .hero {
+    padding: 52px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .hero-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 12px;
+  }
+  .hero h1 {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .meta-pill {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--text-2);
+  }
+  .meta-pill svg { opacity: 0.6; }
+  .meta-pill code {
+    font-family: var(--font-mono);
+    background: var(--surface-2);
+    border: 1px solid var(--border-2);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-size: 11px;
+    color: var(--text);
+  }
+  .badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.04em;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: var(--green-soft);
+    color: var(--green);
+    border: 1px solid rgba(82,212,143,0.25);
+  }
+
+  /* ── Section ────────────────────────────────────────── */
+  section { margin-bottom: 56px; }
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+  .section-desc {
+    color: var(--text-2);
+    font-size: 13px;
+    margin-bottom: 24px;
+    max-width: 600px;
+  }
+
+  /* ── Cards ──────────────────────────────────────────── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+  .card-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  /* ── SVG wrapper ────────────────────────────────────── */
+  .svg-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  svg { display: block; }
+
+  /* ── Code block ─────────────────────────────────────── */
+  .code-block {
+    background: #0a0a0a;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.75;
+    overflow-x: auto;
+    color: #cdd6f4;
+    tab-size: 2;
+  }
+  .code-block .kw  { color: #cba6f7; }
+  .code-block .fn  { color: #89b4fa; }
+  .code-block .str { color: #a6e3a1; }
+  .code-block .cm  { color: #585b70; font-style: italic; }
+  .code-block .num { color: #fab387; }
+  .code-block .ty  { color: #f9e2af; }
+
+  /* ── Field table ────────────────────────────────────── */
+  .field-table { width: 100%; border-collapse: collapse; }
+  .field-table th {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    padding: 0 12px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .field-table td {
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .field-table tr:last-child td { border-bottom: none; }
+  .field-table code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--blue);
+    background: var(--blue-soft);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+  .field-used { color: var(--text); }
+  .field-unused { color: var(--text-3); }
+  .field-note { color: var(--text-2); font-size: 12px; }
+  .tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px solid var(--border-2);
+    color: var(--text-2);
+    margin-right: 4px;
+  }
+  .tag.used { background: var(--blue-soft); color: var(--blue); border-color: rgba(91,142,240,0.3); }
+
+  /* ── DoD list ───────────────────────────────────────── */
+  .dod-group { margin-bottom: 24px; }
+  .dod-group-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+    font-family: var(--font-mono);
+  }
+  .dod-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .dod-item:last-child { border-bottom: none; }
+  .dod-checkbox {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--border-2);
+    border-radius: 4px;
+    margin-top: 1px;
+  }
+  .dod-item.warn { color: var(--text-2); }
+  .dod-item.warn .dod-checkbox { border-color: rgba(248,113,113,0.4); }
+
+  /* ── Constraint pill ────────────────────────────────── */
+  .constraint-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+  }
+  .constraint-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text-2);
+  }
+  .constraint-pill svg { flex-shrink: 0; color: var(--red); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ═══════════════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════════════════ -->
+  <div class="hero">
+    <div class="hero-label">Story 01 · Process Discovery</div>
+    <h1>Project List</h1>
+    <div class="hero-meta">
+      <div class="meta-pill">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M2 7h10M2 11h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Screen <code>ProjectList</code>
+      </div>
+      <div class="meta-pill">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2L12 7L7 12M2 7h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Route <code>/</code>
+      </div>
+      <div class="meta-pill">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 2h6l3 3v7H3V2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 2v3h3" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        File <code>src/screens/ProjectList.jsx</code>
+      </div>
+      <div class="badge-status">
+        <svg width="7" height="7"><circle cx="3.5" cy="3.5" r="3.5" fill="currentColor"/></svg>
+        Exists — verify &amp; fix gaps
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════
+       SCREEN MOCKUP — STATE A (POPULATED)
+  ══════════════════════════════════════════════════════ -->
+  <section>
+    <div class="section-label">UI State A — Populated</div>
+    <h2>Project table</h2>
+    <p class="section-desc">The default state. Renders whenever <code>projects.length &gt; 0</code>. Projects are shown in reverse insertion order (newest first).</p>
+
+    <div class="svg-wrap">
+      <svg viewBox="0 0 900 380" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <defs>
+          <linearGradient id="gb" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#5b8ef0" stop-opacity="0.9"/>
+            <stop offset="100%" stop-color="#7b6ef0" stop-opacity="0.9"/>
+          </linearGradient>
+        </defs>
+
+        <!-- App shell bg -->
+        <rect width="900" height="380" fill="#111"/>
+
+        <!-- AppNav -->
+        <rect width="900" height="44" fill="#181818"/>
+        <rect width="900" height="1" y="44" fill="#ffffff14"/>
+        <!-- Nav logo dot -->
+        <rect x="20" y="15" width="14" height="14" rx="4" fill="#5b8ef0" opacity="0.8"/>
+        <!-- Breadcrumb -->
+        <text x="42" y="26" font-family="-apple-system,sans-serif" font-size="12" fill="#aaa">Process Discovery</text>
+        <text x="155" y="26" font-family="-apple-system,sans-serif" font-size="12" fill="#555">›</text>
+        <text x="165" y="26" font-family="-apple-system,sans-serif" font-size="12" fill="#ddd">Projects</text>
+
+        <!-- Screen body -->
+        <!-- Header row -->
+        <text x="32" y="90" font-family="-apple-system,sans-serif" font-size="18" font-weight="600" fill="#f0f0f0" letter-spacing="-0.3">Discovery projects</text>
+        <text x="32" y="108" font-family="-apple-system,sans-serif" font-size="12" fill="#777">Active and recent process discovery sessions.</text>
+        <!-- New project btn -->
+        <rect x="752" y="72" width="120" height="34" rx="8" fill="url(#gb)"/>
+        <text x="812" y="93" font-family="-apple-system,sans-serif" font-size="12" font-weight="500" fill="white" text-anchor="middle">+ New project</text>
+
+        <!-- Card container -->
+        <rect x="32" y="128" width="840" height="236" rx="10" fill="#181818" stroke="#ffffff0f" stroke-width="1"/>
+
+        <!-- Table header -->
+        <rect x="32" y="128" width="840" height="38" rx="10" fill="#1e1e1e"/>
+        <rect x="32" y="153" width="840" height="1" fill="#ffffff0f"/>
+        <!-- Header labels -->
+        <text x="52" y="151" font-family="'SF Mono',monospace" font-size="10" fill="#666" letter-spacing="0.1em">CLIENT</text>
+        <text x="264" y="151" font-family="'SF Mono',monospace" font-size="10" fill="#666" letter-spacing="0.1em">PROCESS</text>
+        <text x="550" y="151" font-family="'SF Mono',monospace" font-size="10" fill="#666" letter-spacing="0.1em">% UNDERSTOOD</text>
+        <text x="706" y="151" font-family="'SF Mono',monospace" font-size="10" fill="#666" letter-spacing="0.1em">LAST ACTIVITY</text>
+        <text x="840" y="151" font-family="'SF Mono',monospace" font-size="10" fill="#666" letter-spacing="0.1em" text-anchor="end">STATUS</text>
+
+        <!-- Column width labels -->
+        <text x="158" y="140" font-family="'SF Mono',monospace" font-size="9" fill="#5b8ef030" text-anchor="middle">24%</text>
+        <text x="390" y="140" font-family="'SF Mono',monospace" font-size="9" fill="#5b8ef030" text-anchor="middle">32%</text>
+        <text x="620" y="140" font-family="'SF Mono',monospace" font-size="9" fill="#5b8ef030" text-anchor="middle">20%</text>
+        <text x="736" y="140" font-family="'SF Mono',monospace" font-size="9" fill="#5b8ef030" text-anchor="middle">12%</text>
+        <text x="852" y="140" font-family="'SF Mono',monospace" font-size="9" fill="#5b8ef030" text-anchor="middle">12%</text>
+
+        <!-- ── Row 1 (interviewing) ── -->
+        <rect x="33" y="166" width="838" height="52" rx="0" fill="#1c1c1c" opacity="0"/>
+        <rect x="33" y="217" width="838" height="1" fill="#ffffff08"/>
+        <!-- Avatar -->
+        <rect x="52" y="176" width="28" height="28" rx="8" fill="#2a2a2a" stroke="#333" stroke-width="1"/>
+        <!-- Client name -->
+        <text x="88" y="194" font-family="-apple-system,sans-serif" font-size="13" font-weight="500" fill="#f0f0f0">Nexus Health</text>
+        <!-- Process name -->
+        <text x="264" y="194" font-family="-apple-system,sans-serif" font-size="13" fill="#aaa">Prior auth processing</text>
+        <!-- Progress bar -->
+        <rect x="550" y="186" width="120" height="5" rx="2.5" fill="#2a2a2a"/>
+        <rect x="550" y="186" width="72" height="5" rx="2.5" fill="#5b8ef0"/>
+        <text x="680" y="194" font-family="'SF Mono',monospace" font-size="11" fill="#888" text-anchor="end">60%</text>
+        <!-- Last activity -->
+        <text x="706" y="194" font-family="-apple-system,sans-serif" font-size="12" fill="#666">May 21</text>
+        <!-- Status chip: In progress (live) -->
+        <rect x="780" y="181" width="76" height="20" rx="10" fill="#52d48f14" stroke="#52d48f33" stroke-width="1"/>
+        <circle cx="793" cy="191" r="3.5" fill="#52d48f">
+          <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <text x="850" y="195" font-family="-apple-system,sans-serif" font-size="10" fill="#52d48f" text-anchor="end">In progress</text>
+
+        <!-- ── Row 2 (setup) ── -->
+        <rect x="33" y="218" width="838" height="1" fill="#ffffff08"/>
+        <rect x="52" y="228" width="28" height="28" rx="8" fill="#2a2a2a" stroke="#333" stroke-width="1"/>
+        <text x="88" y="246" font-family="-apple-system,sans-serif" font-size="13" font-weight="500" fill="#f0f0f0">Thornfield Retail</text>
+        <text x="264" y="246" font-family="-apple-system,sans-serif" font-size="13" fill="#aaa">Returns &amp; exchange handling</text>
+        <rect x="550" y="238" width="120" height="5" rx="2.5" fill="#2a2a2a"/>
+        <rect x="550" y="238" width="24" height="5" rx="2.5" fill="#5b8ef0"/>
+        <text x="680" y="246" font-family="'SF Mono',monospace" font-size="11" fill="#888" text-anchor="end">20%</text>
+        <text x="706" y="246" font-family="-apple-system,sans-serif" font-size="12" fill="#666">May 20</text>
+        <rect x="798" y="233" width="52" height="20" rx="10" fill="#5b8ef014" stroke="#5b8ef033" stroke-width="1"/>
+        <circle cx="810" cy="243" r="3.5" fill="#5b8ef0"/>
+        <text x="850" y="247" font-family="-apple-system,sans-serif" font-size="10" fill="#5b8ef0" text-anchor="end">Draft</text>
+
+        <!-- ── Row 3 (complete / seed) ── -->
+        <rect x="33" y="270" width="838" height="1" fill="#ffffff08"/>
+        <rect x="52" y="280" width="28" height="28" rx="8" fill="#2a2a2a" stroke="#333" stroke-width="1"/>
+        <text x="88" y="298" font-family="-apple-system,sans-serif" font-size="13" font-weight="500" fill="#f0f0f0">Acme Logistics</text>
+        <text x="264" y="298" font-family="-apple-system,sans-serif" font-size="13" fill="#aaa">Refund request handling</text>
+        <!-- SEED badge -->
+        <rect x="436" y="287" width="40" height="16" rx="4" fill="none" stroke="#ffffff22" stroke-width="1"/>
+        <text x="456" y="298" font-family="'SF Mono',monospace" font-size="9" fill="#666" text-anchor="middle" letter-spacing="0.04em">SEED</text>
+        <!-- 100% progress -->
+        <rect x="550" y="290" width="120" height="5" rx="2.5" fill="#2a2a2a"/>
+        <rect x="550" y="290" width="120" height="5" rx="2.5" fill="#52d48f"/>
+        <text x="680" y="298" font-family="'SF Mono',monospace" font-size="11" fill="#888" text-anchor="end">100%</text>
+        <text x="706" y="298" font-family="-apple-system,sans-serif" font-size="12" fill="#666">Mar 14</text>
+        <!-- Status chip: Complete -->
+        <rect x="793" y="285" width="65" height="20" rx="10" fill="#52d48f14" stroke="#52d48f33" stroke-width="1"/>
+        <circle cx="805" cy="295" r="3.5" fill="#52d48f"/>
+        <text x="858" y="299" font-family="-apple-system,sans-serif" font-size="10" fill="#52d48f" text-anchor="end">Complete</text>
+
+        <!-- Cursor on row 1 -->
+        <text x="28" y="196" font-size="12" fill="#5b8ef0" opacity="0.7">›</text>
+      </svg>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════
+       SCREEN MOCKUP — STATE B (EMPTY)
+  ══════════════════════════════════════════════════════ -->
+  <section>
+    <div class="section-label">UI State B — Empty</div>
+    <h2>Empty state</h2>
+    <p class="section-desc">Renders when <code>projects.length === 0</code>. In practice only occurs if the store is cleared — the seed project always exists on first load.</p>
+
+    <div class="svg-wrap">
+      <svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <rect width="900" height="300" fill="#111"/>
+        <!-- AppNav -->
+        <rect width="900" height="44" fill="#181818"/>
+        <rect width="900" height="1" y="44" fill="#ffffff14"/>
+        <rect x="20" y="15" width="14" height="14" rx="4" fill="#5b8ef0" opacity="0.8"/>
+        <text x="42" y="26" font-family="-apple-system,sans-serif" font-size="12" fill="#aaa">Process Discovery</text>
+        <text x="155" y="26" font-family="-apple-system,sans-serif" font-size="12" fill="#555">›</text>
+        <text x="165" y="26" font-family="-apple-system,sans-serif" font-size="12" fill="#ddd">Projects</text>
+
+        <!-- Dashed card -->
+        <rect x="32" y="68" width="836" height="212" rx="10" fill="#181818" stroke="#ffffff18" stroke-width="1" stroke-dasharray="6 4"/>
+
+        <!-- Diamond icon box -->
+        <rect x="396" y="96" width="68" height="68" rx="18" fill="#1e1e1e" stroke="#ffffff14" stroke-width="1"/>
+        <text x="430" y="138" font-family="-apple-system,sans-serif" font-size="26" fill="#555" text-anchor="middle">◇</text>
+
+        <!-- Copy -->
+        <text x="450" y="186" font-family="-apple-system,sans-serif" font-size="16" font-weight="500" fill="#ddd" text-anchor="middle">No discovery projects yet</text>
+        <text x="450" y="204" font-family="-apple-system,sans-serif" font-size="12" fill="#666" text-anchor="middle">Create your first project to brief Timmy before a client call.</text>
+
+        <!-- CTA button -->
+        <rect x="372" y="218" width="156" height="36" rx="8" fill="url(#gb)"/>
+        <text x="450" y="240" font-family="-apple-system,sans-serif" font-size="13" font-weight="500" fill="white" text-anchor="middle">+ New project</text>
+      </svg>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════
+       NAVIGATION MAP
+  ══════════════════════════════════════════════════════ -->
+  <section>
+    <div class="section-label">Navigation</div>
+    <h2>Where each action leads</h2>
+    <p class="section-desc">Every click on a row calls <code>setCurrentProject(id)</code> first, then navigates. The "New project" button skips <code>setCurrentProject</code> — no project exists yet.</p>
+
+    <div class="svg-wrap">
+      <svg viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0 1.5L8 5L0 8.5z" fill="#5b8ef0"/>
+          </marker>
+          <marker id="arr-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0 1.5L8 5L0 8.5z" fill="#52d48f"/>
+          </marker>
+          <marker id="arr-p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0 1.5L8 5L0 8.5z" fill="#a78bfa"/>
+          </marker>
+          <marker id="arr-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0 1.5L8 5L0 8.5z" fill="#f59e0b"/>
+          </marker>
+        </defs>
+        <rect width="900" height="260" fill="#111"/>
+
+        <!-- Source node: ProjectList / -->
+        <rect x="32" y="100" width="160" height="56" rx="10" fill="#1e1e1e" stroke="#5b8ef0" stroke-width="1.5"/>
+        <text x="112" y="122" font-family="'SF Mono',monospace" font-size="11" fill="#5b8ef0" text-anchor="middle">ProjectList</text>
+        <text x="112" y="140" font-family="'SF Mono',monospace" font-size="10" fill="#555" text-anchor="middle">route: /</text>
+
+        <!-- "New project" button trigger -->
+        <rect x="32" y="28" width="160" height="30" rx="7" fill="#5b8ef014" stroke="#5b8ef033" stroke-width="1"/>
+        <text x="112" y="47" font-family="-apple-system,sans-serif" font-size="11" fill="#5b8ef0" text-anchor="middle">+ New project</text>
+
+        <!-- Row click triggers -->
+        <rect x="32" y="168" width="160" height="24" rx="5" fill="#2a2a2a"/>
+        <text x="112" y="183" font-family="-apple-system,sans-serif" font-size="10" fill="#888" text-anchor="middle">click row: status=setup</text>
+        <rect x="32" y="198" width="160" height="24" rx="5" fill="#2a2a2a"/>
+        <text x="112" y="213" font-family="-apple-system,sans-serif" font-size="10" fill="#888" text-anchor="middle">click row: status=interviewing</text>
+        <rect x="32" y="228" width="160" height="24" rx="5" fill="#2a2a2a"/>
+        <text x="112" y="243" font-family="-apple-system,sans-serif" font-size="10" fill="#888" text-anchor="middle">click row: status=complete</text>
+
+        <!-- Arrows from triggers into source node -->
+        <line x1="112" y1="58" x2="112" y2="99" stroke="#5b8ef0" stroke-width="1" stroke-dasharray="3 3"/>
+        <line x1="112" y1="168" x2="112" y2="156" stroke="#888" stroke-width="1" stroke-dasharray="3 3"/>
+        <line x1="112" y1="198" x2="112" y2="156" stroke="#888" stroke-width="1" stroke-dasharray="3 3"/>
+        <line x1="112" y1="228" x2="112" y2="156" stroke="#888" stroke-width="1" stroke-dasharray="3 3"/>
+
+        <!-- /new destination -->
+        <rect x="358" y="24" width="180" height="38" rx="10" fill="#1e1e1e" stroke="#5b8ef0" stroke-width="1.5"/>
+        <text x="448" y="41" font-family="'SF Mono',monospace" font-size="11" fill="#5b8ef0" text-anchor="middle">CreateProject</text>
+        <text x="448" y="55" font-family="'SF Mono',monospace" font-size="10" fill="#555" text-anchor="middle">route: /new</text>
+        <line x1="192" y1="43" x2="357" y2="43" stroke="#5b8ef0" stroke-width="1.5" marker-end="url(#arr)"/>
+        <text x="275" y="38" font-family="-apple-system,sans-serif" font-size="10" fill="#5b8ef0" text-anchor="middle">navigate('/new')</text>
+
+        <!-- /context destination -->
+        <rect x="358" y="104" width="220" height="38" rx="10" fill="#1e1e1e" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="468" y="121" font-family="'SF Mono',monospace" font-size="11" fill="#a78bfa" text-anchor="middle">AddContext</text>
+        <text x="468" y="135" font-family="'SF Mono',monospace" font-size="10" fill="#555" text-anchor="middle">route: /projects/:id/context</text>
+        <path d="M192 180 Q275 180 357 123" stroke="#a78bfa" stroke-width="1.5" fill="none" marker-end="url(#arr-p)"/>
+        <text x="275" y="168" font-family="-apple-system,sans-serif" font-size="10" fill="#a78bfa" text-anchor="middle">setup →</text>
+
+        <!-- /live destination -->
+        <rect x="358" y="162" width="220" height="38" rx="10" fill="#1e1e1e" stroke="#52d48f" stroke-width="1.5"/>
+        <text x="468" y="179" font-family="'SF Mono',monospace" font-size="11" fill="#52d48f" text-anchor="middle">InterviewInProgress</text>
+        <text x="468" y="193" font-family="'SF Mono',monospace" font-size="10" fill="#555" text-anchor="middle">route: /projects/:id/live</text>
+        <line x1="192" y1="210" x2="357" y2="181" stroke="#52d48f" stroke-width="1.5" marker-end="url(#arr-g)"/>
+        <text x="275" y="202" font-family="-apple-system,sans-serif" font-size="10" fill="#52d48f" text-anchor="middle">interviewing →</text>
+
+        <!-- /outputs destination -->
+        <rect x="358" y="220" width="220" height="38" rx="10" fill="#1e1e1e" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="468" y="237" font-family="'SF Mono',monospace" font-size="11" fill="#f59e0b" text-anchor="middle">Outputs</text>
+        <text x="468" y="251" font-family="'SF Mono',monospace" font-size="10" fill="#555" text-anchor="middle">route: /projects/:id/outputs</text>
+        <line x1="192" y1="240" x2="357" y2="239" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arr-a)"/>
+        <text x="275" y="234" font-family="-apple-system,sans-serif" font-size="10" fill="#f59e0b" text-anchor="middle">complete →</text>
+
+        <!-- setCurrentProject note -->
+        <rect x="618" y="130" width="258" height="52" rx="8" fill="#1a1a1a" stroke="#ffffff10" stroke-width="1"/>
+        <text x="628" y="148" font-family="-apple-system,sans-serif" font-size="11" fill="#888">Before each row navigation:</text>
+        <text x="628" y="164" font-family="'SF Mono',monospace" font-size="11" fill="#5b8ef0">setCurrentProject(project.id)</text>
+        <text x="628" y="177" font-family="-apple-system,sans-serif" font-size="10" fill="#555">Not needed for "+ New project"</text>
+      </svg>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════
+       DATA CONTRACT
+  ══════════════════════════════════════════════════════ -->
+  <section>
+    <div class="section-label">Data Contract</div>
+    <h2>Project interface</h2>
+    <p class="section-desc">Fields highlighted in blue are used on this screen. All others are stored but not rendered.</p>
+
+    <div class="card">
+      <table class="field-table">
+        <thead>
+          <tr>
+            <th style="width:160px">Field</th>
+            <th style="width:200px">Type</th>
+            <th style="width:80px">Used here</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td class="field-note">string</td>
+            <td><span class="tag used">✓ used</span></td>
+            <td class="field-note">crypto.randomUUID() — used as React key + route param</td>
+          </tr>
+          <tr>
+            <td><code>clientName</code></td>
+            <td class="field-note">string</td>
+            <td><span class="tag used">✓ used</span></td>
+            <td class="field-note">Displayed in Client column, font-weight 500</td>
+          </tr>
+          <tr>
+            <td><code>processName</code></td>
+            <td class="field-note">string</td>
+            <td><span class="tag used">✓ used</span></td>
+            <td class="field-note">Displayed in Process column alongside optional SEED badge</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td class="field-note">'setup' | 'interviewing' | 'complete'</td>
+            <td><span class="tag used">✓ used</span></td>
+            <td class="field-note">Drives status chip + handleOpen routing</td>
+          </tr>
+          <tr>
+            <td><code>pctUnderstood</code></td>
+            <td class="field-note">number (0–100)</td>
+            <td><span class="tag used">✓ used</span></td>
+            <td class="field-note">Progress bar width + numeric label; green when 100</td>
+          </tr>
+          <tr>
+            <td><code>lastActivity</code></td>
+            <td class="field-note">string</td>
+            <td><span class="tag used">✓ used</span></td>
+            <td class="field-note">Display string e.g. "Mar 14" — fg-on-dark-3, 13px</td>
+          </tr>
+          <tr>
+            <td><code>seed</code></td>
+            <td class="field-note">boolean</td>
+            <td><span class="tag used">✓ used</span></td>
+            <td class="field-note">Renders SEED badge in Process column when true</td>
+          </tr>
+          <tr>
+            <td class="field-unused"><code>goal</code></td>
+            <td class="field-note field-unused">string</td>
+            <td><span class="tag">—</span></td>
+            <td class="field-note field-unused">Not displayed on this screen</td>
+          </tr>
+          <tr>
+            <td class="field-unused"><code>contextBlob</code></td>
+            <td class="field-note field-unused">string</td>
+            <td><span class="tag">—</span></td>
+            <td class="field-note field-unused">Not displayed on this screen</td>
+          </tr>
+          <tr>
+            <td class="field-unused"><code>goals</code></td>
+            <td class="field-note field-unused">Goal[]</td>
+            <td><span class="tag">—</span></td>
+            <td class="field-note field-unused">Not displayed on this screen</td>
+          </tr>
+          <tr>
+            <td class="field-unused"><code>interviewMode</code></td>
+            <td class="field-note field-unused">'voice' | 'voice+screen'</td>
+            <td><span class="tag">—</span></td>
+            <td class="field-note field-unused">Not displayed on this screen</td>
+          </tr>
+          <tr>
+            <td class="field-unused"><code>outputs</code></td>
+            <td class="field-note field-unused">Outputs</td>
+            <td><span class="tag">—</span></td>
+            <td class="field-note field-unused">Not displayed on this screen</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════
+       ROW ANATOMY
+  ══════════════════════════════════════════════════════ -->
+  <section>
+    <div class="section-label">Row Anatomy</div>
+    <h2>Column widths &amp; cell specs</h2>
+    <p class="section-desc">Each <code>.project-table-row</code> is a flex row. Widths are percentage-based. The last column is right-aligned.</p>
+
+    <div class="svg-wrap">
+      <svg viewBox="0 0 900 200" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <rect width="900" height="200" fill="#111"/>
+
+        <!-- Row bg -->
+        <rect x="20" y="80" width="860" height="72" rx="8" fill="#181818" stroke="#ffffff0f" stroke-width="1"/>
+
+        <!-- Column zone overlays -->
+        <!-- Client: 24% = 206px -->
+        <rect x="20" y="80" width="206" height="72" rx="0" fill="#5b8ef008"/>
+        <!-- Process: 32% = 275px -->
+        <rect x="226" y="80" width="275" height="72" fill="#a78bfa08"/>
+        <!-- % Understood: 20% = 172px -->
+        <rect x="501" y="80" width="172" height="72" fill="#52d48f08"/>
+        <!-- Last activity: 12% = 103px -->
+        <rect x="673" y="80" width="103" height="72" fill="#f59e0b08"/>
+        <!-- Status: 12% = 103px -->
+        <rect x="776" y="80" width="104" height="72" rx="0" fill="#5b8ef008"/>
+
+        <!-- Width labels above -->
+        <text x="123" y="24" font-family="'SF Mono',monospace" font-size="11" fill="#5b8ef0" text-anchor="middle">Client  24%</text>
+        <text x="363" y="24" font-family="'SF Mono',monospace" font-size="11" fill="#a78bfa" text-anchor="middle">Process  32%</text>
+        <text x="587" y="24" font-family="'SF Mono',monospace" font-size="11" fill="#52d48f" text-anchor="middle">% Understood  20%</text>
+        <text x="724" y="24" font-family="'SF Mono',monospace" font-size="11" fill="#f59e0b" text-anchor="middle">Last activity  12%</text>
+        <text x="828" y="24" font-family="'SF Mono',monospace" font-size="11" fill="#5b8ef0" text-anchor="middle">Status  12%</text>
+
+        <!-- Column dividers -->
+        <line x1="226" y1="30" x2="226" y2="152" stroke="#ffffff10" stroke-width="1" stroke-dasharray="3 3"/>
+        <line x1="501" y1="30" x2="501" y2="152" stroke="#ffffff10" stroke-width="1" stroke-dasharray="3 3"/>
+        <line x1="673" y1="30" x2="673" y2="152" stroke="#ffffff10" stroke-width="1" stroke-dasharray="3 3"/>
+        <line x1="776" y1="30" x2="776" y2="152" stroke="#ffffff10" stroke-width="1" stroke-dasharray="3 3"/>
+
+        <!-- Down arrows from labels to row -->
+        <line x1="123" y1="30" x2="123" y2="78" stroke="#5b8ef040" stroke-width="1"/>
+        <line x1="363" y1="30" x2="363" y2="78" stroke="#a78bfa40" stroke-width="1"/>
+        <line x1="587" y1="30" x2="587" y2="78" stroke="#52d48f40" stroke-width="1"/>
+        <line x1="724" y1="30" x2="724" y2="78" stroke="#f59e0b40" stroke-width="1"/>
+        <line x1="828" y1="30" x2="828" y2="78" stroke="#5b8ef040" stroke-width="1"/>
+
+        <!-- CLIENT cell content -->
+        <rect x="36" y="97" width="28" height="28" rx="8" fill="#2a2a2a" stroke="#333" stroke-width="1"/>
+        <text x="72" y="115" font-family="-apple-system,sans-serif" font-size="13" font-weight="500" fill="#f0f0f0">Acme Logistics</text>
+        <text x="36" y="162" font-family="-apple-system,sans-serif" font-size="10" fill="#5b8ef0">30×30 avatar + name (fw:500)</text>
+
+        <!-- PROCESS cell content -->
+        <text x="242" y="115" font-family="-apple-system,sans-serif" font-size="13" fill="#aaa">Refund request handling</text>
+        <rect x="434" y="103" width="40" height="16" rx="4" fill="none" stroke="#ffffff22" stroke-width="1"/>
+        <text x="454" y="114" font-family="'SF Mono',monospace" font-size="9" fill="#666" text-anchor="middle" letter-spacing="0.04em">SEED</text>
+        <text x="242" y="162" font-family="-apple-system,sans-serif" font-size="10" fill="#a78bfa">processName + SEED badge (if seed)</text>
+
+        <!-- % UNDERSTOOD cell content -->
+        <rect x="517" y="109" width="120" height="5" rx="2.5" fill="#2a2a2a"/>
+        <rect x="517" y="109" width="120" height="5" rx="2.5" fill="#52d48f"/>
+        <text x="646" y="117" font-family="'SF Mono',monospace" font-size="11" fill="#888" text-anchor="end">100%</text>
+        <text x="517" y="162" font-family="-apple-system,sans-serif" font-size="10" fill="#52d48f">bar-track + bar-fill + numeric</text>
+
+        <!-- LAST ACTIVITY cell content -->
+        <text x="689" y="115" font-family="-apple-system,sans-serif" font-size="12" fill="#666">Mar 14</text>
+        <text x="689" y="162" font-family="-apple-system,sans-serif" font-size="10" fill="#f59e0b">fg-on-dark-3 · 13px</text>
+
+        <!-- STATUS cell content -->
+        <rect x="793" y="102" width="65" height="20" rx="10" fill="#52d48f14" stroke="#52d48f33" stroke-width="1"/>
+        <circle cx="804" cy="112" r="3.5" fill="#52d48f"/>
+        <text x="857" y="116" font-family="-apple-system,sans-serif" font-size="10" fill="#52d48f" text-anchor="end">Complete</text>
+        <text x="793" y="162" font-family="-apple-system,sans-serif" font-size="10" fill="#5b8ef0">right-aligned chip</text>
+      </svg>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════
+       STATUS CHIPS + PROGRESS BAR
+  ══════════════════════════════════════════════════════ -->
+  <section>
+    <div class="section-label">Component Specs</div>
+    <h2>Status chips &amp; progress bars</h2>
+
+    <div class="card-row">
+      <!-- Status chips -->
+      <div class="svg-wrap">
+        <svg viewBox="0 0 440 200" xmlns="http://www.w3.org/2000/svg" width="100%">
+          <rect width="440" height="200" fill="#111"/>
+          <text x="20" y="28" font-family="'SF Mono',monospace" font-size="10" fill="#555" letter-spacing="0.1em">STATUS CHIPS</text>
+
+          <!-- setup / Draft -->
+          <text x="20" y="60" font-family="-apple-system,sans-serif" font-size="11" fill="#666">status: 'setup'</text>
+          <rect x="20" y="68" width="70" height="22" rx="11" fill="#5b8ef014" stroke="#5b8ef033" stroke-width="1"/>
+          <circle cx="33" cy="79" r="4" fill="#5b8ef0"/>
+          <text x="87" y="83" font-family="-apple-system,sans-serif" font-size="11" fill="#5b8ef0" text-anchor="end">Draft</text>
+          <text x="108" y="83" font-family="-apple-system,sans-serif" font-size="10" fill="#444">chip (default) · blue-300 dot</text>
+
+          <!-- interviewing / In progress -->
+          <text x="20" y="118" font-family="-apple-system,sans-serif" font-size="11" fill="#666">status: 'interviewing'</text>
+          <rect x="20" y="126" width="90" height="22" rx="11" fill="#52d48f14" stroke="#52d48f33" stroke-width="1"/>
+          <circle cx="33" cy="137" r="4" fill="#52d48f">
+            <animate attributeName="opacity" values="1;0.2;1" dur="1.8s" repeatCount="indefinite"/>
+          </circle>
+          <text x="107" y="141" font-family="-apple-system,sans-serif" font-size="11" fill="#52d48f" text-anchor="end">In progress</text>
+          <text x="120" y="141" font-family="-apple-system,sans-serif" font-size="10" fill="#444">chip.live · animated green dot</text>
+
+          <!-- complete / Complete -->
+          <text x="20" y="176" font-family="-apple-system,sans-serif" font-size="11" fill="#666">status: 'complete'</text>
+          <rect x="20" y="184" width="80" height="22" rx="11" fill="#52d48f14" stroke="#52d48f33" stroke-width="1"/>
+          <circle cx="33" cy="195" r="4" fill="#52d48f"/>
+          <text x="97" y="199" font-family="-apple-system,sans-serif" font-size="11" fill="#52d48f" text-anchor="end">Complete</text>
+          <text x="110" y="199" font-family="-apple-system,sans-serif" font-size="10" fill="#444">chip (default) · green-soft dot</text>
+        </svg>
+      </div>
+
+      <!-- Progress bars -->
+      <div class="svg-wrap">
+        <svg viewBox="0 0 440 200" xmlns="http://www.w3.org/2000/svg" width="100%">
+          <rect width="440" height="200" fill="#111"/>
+          <text x="20" y="28" font-family="'SF Mono',monospace" font-size="10" fill="#555" letter-spacing="0.1em">PROGRESS BAR</text>
+
+          <!-- 0% -->
+          <text x="20" y="58" font-family="-apple-system,sans-serif" font-size="11" fill="#666">pctUnderstood: 0</text>
+          <rect x="20" y="64" width="160" height="6" rx="3" fill="#2a2a2a"/>
+          <text x="190" y="72" font-family="'SF Mono',monospace" font-size="11" fill="#888">0%</text>
+          <text x="220" y="72" font-family="-apple-system,sans-serif" font-size="10" fill="#444">blue-300 fill (0px)</text>
+
+          <!-- 60% -->
+          <text x="20" y="110" font-family="-apple-system,sans-serif" font-size="11" fill="#666">pctUnderstood: 60</text>
+          <rect x="20" y="116" width="160" height="6" rx="3" fill="#2a2a2a"/>
+          <rect x="20" y="116" width="96" height="6" rx="3" fill="#5b8ef0"/>
+          <text x="190" y="124" font-family="'SF Mono',monospace" font-size="11" fill="#888">60%</text>
+          <text x="220" y="124" font-family="-apple-system,sans-serif" font-size="10" fill="#444">beam-blue-300</text>
+
+          <!-- 100% -->
+          <text x="20" y="162" font-family="-apple-system,sans-serif" font-size="11" fill="#666">pctUnderstood: 100</text>
+          <rect x="20" y="168" width="160" height="6" rx="3" fill="#2a2a2a"/>
+          <rect x="20" y="168" width="160" height="6" rx="3" fill="#52d48f"/>
+          <text x="190" y="176" font-family="'SF Mono',monospace" font-size="11" fill="#52d48f">100%</text>
+          <text x="225" y="176" font-family="-apple-system,sans-serif" font-size="10" fill="#444">beam-green-soft ← switches at 100</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════
+       CONSTRAINTS
+  ══════════════════════════════════════════════════════ -->
+  <section>
+    <div class="section-label">Constraints</div>
+    <h2>Do NOT build these</h2>
+    <p class="section-desc">These are explicitly out of scope. Reject any PR that adds them.</p>
+    <div class="constraint-grid">
+      <div class="constraint-pill">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No search input
+      </div>
+      <div class="constraint-pill">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No filter / sort controls
+      </div>
+      <div class="constraint-pill">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No delete or archive
+      </div>
+      <div class="constraint-pill">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No pagination
+      </div>
+      <div class="constraint-pill">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No loading spinner
+      </div>
+      <div class="constraint-pill">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No hover tooltip / popover
+      </div>
+      <div class="constraint-pill">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No project count badge
+      </div>
+      <div class="constraint-pill">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No column sort on header click
+      </div>
+      <div class="constraint-pill">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No useState — zero local state
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════
+       DEFINITION OF DONE
+  ══════════════════════════════════════════════════════ -->
+  <section>
+    <div class="section-label">Definition of Done</div>
+    <h2>Acceptance checklist</h2>
+    <p class="section-desc">All items must pass before this story is closed.</p>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+
+      <div class="card">
+        <div class="dod-group">
+          <div class="dod-group-title">Routing</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Navigating to <code style="font-family:monospace;font-size:11px;color:#5b8ef0">/</code> renders ProjectList</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Unknown routes redirect to <code style="font-family:monospace;font-size:11px;color:#5b8ef0">/</code></div>
+        </div>
+        <div class="dod-group">
+          <div class="dod-group-title">Seed project</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Acme Logistics appears on fresh load</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Shows green progress bar at 100% + "Complete" chip</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Shows SEED badge next to process name</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Clicking navigates to <code style="font-family:monospace;font-size:11px;color:#5b8ef0">/projects/seed-refund/outputs</code></div>
+        </div>
+        <div class="dod-group">
+          <div class="dod-group-title">Empty state</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Dashed card renders with exact copy</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>CTA navigates to <code style="font-family:monospace;font-size:11px;color:#5b8ef0">/new</code></div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Never a blank page — always shows empty state</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="dod-group">
+          <div class="dod-group-title">Populated state</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Five columns at specified widths (24/32/20/12/12%)</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>"+ New project" always visible in header</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Rows in reverse insertion order</div>
+        </div>
+        <div class="dod-group">
+          <div class="dod-group-title">Row behaviour</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Avatar + clientName + processName + SEED + bar + % + date + chip</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Click calls setCurrentProject then navigates by status</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>setup → /context · interviewing → /live · complete → /outputs</div>
+        </div>
+        <div class="dod-group">
+          <div class="dod-group-title">Must NOT be present</div>
+          <div class="dod-item warn"><div class="dod-checkbox"></div>No search input anywhere</div>
+          <div class="dod-item warn"><div class="dod-checkbox"></div>No filter / sort / delete controls</div>
+          <div class="dod-item warn"><div class="dod-checkbox"></div>No pagination or loading spinner</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

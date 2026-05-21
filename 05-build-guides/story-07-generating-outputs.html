@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Story 07 — Generating Outputs · Process Discovery</title>
+<style>
+  :root {
+    --bg:          #0d0d0d;
+    --surface:     #111;
+    --surface-2:   #181818;
+    --border:      #222;
+    --border-soft: rgba(255,255,255,0.07);
+    --text:        #f0f0f0;
+    --text-2:      #a0a0a0;
+    --text-3:      #555;
+    --blue:        #5b8ef0;
+    --blue-soft:   rgba(91,142,240,0.14);
+    --green:       #52d48f;
+    --green-soft:  rgba(82,212,143,0.13);
+    --red:         #f87171;
+    --red-soft:    rgba(248,113,113,0.13);
+    --amber:       #f59e0b;
+    --amber-soft:  rgba(245,158,11,0.13);
+    --font-mono:   'SF Mono', 'Fira Mono', 'Cascadia Code', monospace;
+    --font-sans:   -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --radius:      16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 0 0 100px;
+  }
+  .page { max-width: 980px; margin: 0 auto; padding: 0 36px; }
+
+  /* ── Hero ──────────────────────────────────────────────── */
+  .hero {
+    padding: 56px 0 44px;
+    border-bottom: 1px solid var(--border-soft);
+    margin-bottom: 52px;
+  }
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 14px;
+  }
+  .hero h1 {
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 18px;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .meta-pill {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--text-2);
+  }
+  .meta-pill code {
+    font-family: var(--font-mono);
+    background: #1a1a1a;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-size: 11px;
+    color: var(--text);
+  }
+  .status-new {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.04em;
+    padding: 3px 11px;
+    border-radius: 20px;
+    background: var(--amber-soft);
+    color: var(--amber);
+    border: 1px solid rgba(245,158,11,0.25);
+  }
+
+  /* ── New screen callout ─────────────────────────────────── */
+  .new-callout {
+    background: rgba(245,158,11,0.07);
+    border: 1.5px solid rgba(245,158,11,0.3);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 52px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .new-callout-icon {
+    font-size: 22px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .new-callout-body h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--amber);
+    margin-bottom: 4px;
+  }
+  .new-callout-body p {
+    font-size: 13px;
+    color: var(--text-2);
+    max-width: 680px;
+    line-height: 1.65;
+  }
+
+  /* ── Section ───────────────────────────────────────────── */
+  section { margin-bottom: 60px; }
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-soft);
+  }
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+  .section-desc {
+    color: var(--text-2);
+    font-size: 13px;
+    margin-bottom: 24px;
+    max-width: 620px;
+    line-height: 1.7;
+  }
+
+  /* ── Cards ─────────────────────────────────────────────── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+  .card-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .card-row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+  .card-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 16px;
+  }
+
+  /* ── SVG wrapper ────────────────────────────────────────── */
+  .svg-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  svg { display: block; }
+
+  /* ── Code block ─────────────────────────────────────────── */
+  .code-block {
+    background: #090909;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 26px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.8;
+    overflow-x: auto;
+    color: #cdd6f4;
+    tab-size: 2;
+  }
+  .code-block .kw  { color: #cba6f7; }
+  .code-block .fn  { color: #89b4fa; }
+  .code-block .str { color: #a6e3a1; }
+  .code-block .cm  { color: #585b70; font-style: italic; }
+  .code-block .num { color: #fab387; }
+  .code-block .ty  { color: #f9e2af; }
+
+  /* ── Constraint pills ───────────────────────────────────── */
+  .constraint-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 10px;
+  }
+  .constraint-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #111;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 15px;
+    font-size: 12px;
+    color: var(--text-2);
+  }
+  .constraint-x {
+    width: 18px;
+    height: 18px;
+    background: rgba(248,113,113,0.12);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--red);
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  /* ── DoD ────────────────────────────────────────────────── */
+  .dod-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 32px;
+  }
+  .dod-group-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    margin-bottom: 10px;
+    font-family: var(--font-mono);
+    margin-top: 22px;
+  }
+  .dod-group-title:first-child { margin-top: 0; }
+  .dod-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 12.5px;
+    color: var(--text-2);
+  }
+  .dod-item:last-child { border-bottom: none; }
+  .dod-cb {
+    flex-shrink: 0;
+    width: 15px;
+    height: 15px;
+    border: 1.5px solid #333;
+    border-radius: 3px;
+    margin-top: 2px;
+  }
+
+  /* ── Table ──────────────────────────────────────────────── */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .data-table th {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    padding: 0 14px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: top;
+    color: var(--text-2);
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--blue);
+    background: var(--blue-soft);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+  .tag-green {
+    display: inline-block;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: var(--green-soft);
+    color: var(--green);
+    border: 1px solid rgba(82,212,143,0.2);
+  }
+  .tag-amber {
+    display: inline-block;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: var(--amber-soft);
+    color: var(--amber);
+    border: 1px solid rgba(245,158,11,0.22);
+  }
+  .tag-blue {
+    display: inline-block;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: var(--blue-soft);
+    color: var(--blue);
+    border: 1px solid rgba(91,142,240,0.22);
+  }
+
+  /* ── Wireframe label ────────────────────────────────────── */
+  .wireframe-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ═══════ HERO ═══════════════════════════════════════════ -->
+  <div class="hero">
+    <div class="hero-eyebrow">Story 07 · Process Discovery</div>
+    <h1>Generating Outputs</h1>
+    <div class="hero-meta">
+      <div class="meta-pill">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2.5h10M2 7h10M2 11.5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Screen <code>GeneratingOutputs</code>
+      </div>
+      <div class="meta-pill">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Route <code>/projects/:id/generating</code>
+      </div>
+      <div class="meta-pill">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v10H2z" stroke="currentColor" stroke-width="1.3"/><path d="M5 5h4M5 8h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        File <code>src/screens/GeneratingOutputs.jsx</code>
+      </div>
+      <div class="status-new">
+        <span style="font-size:12px">★</span>
+        NEW SCREEN — Build from scratch
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ NEW SCREEN CALLOUT ══════════════════════════════ -->
+  <div class="new-callout">
+    <div class="new-callout-icon">⚠</div>
+    <div class="new-callout-body">
+      <h3>This screen does not exist yet — create it from scratch</h3>
+      <p>
+        <code>src/screens/GeneratingOutputs.jsx</code> is a new file. You must also modify <code>App.jsx</code> to add the import and route, modify <code>InterviewInProgress.jsx</code> to change the navigate target from <code>/outputs</code> to <code>/generating</code>, and add CSS to <code>index.css</code>. All four file changes are required.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════ WIREFRAMES ══════════════════════════════════════ -->
+  <section>
+    <div class="section-label">Wireframes</div>
+    <h2>Screen States — Three Step Snapshots</h2>
+    <p class="section-desc">Steps advance every 800ms automatically. No user action is required at any point. After all 4 steps complete there is a 600ms pause before auto-navigation.</p>
+
+    <div class="card-row-3" style="margin-bottom:0">
+      <!-- Wireframe A -->
+      <div>
+        <div class="wireframe-label">A — Step 0 active (just started)</div>
+        <div class="svg-wrap">
+          <svg viewBox="0 0 260 500" xmlns="http://www.w3.org/2000/svg" width="100%">
+            <rect width="260" height="500" fill="#f0f0f0"/>
+            <!-- Nav -->
+            <rect width="260" height="32" fill="#fff" stroke="#ddd" stroke-width="1"/>
+            <text x="10" y="21" font-family="monospace" font-size="8.5" fill="#555">Process Discovery › … › Generating</text>
+
+            <!-- Timmy (120px) with pulse rings -->
+            <circle cx="130" cy="130" r="72" fill="none" stroke="#ccc" stroke-width="1" stroke-dasharray="3 3"/>
+            <circle cx="130" cy="130" r="65" fill="none" stroke="#bbb" stroke-width="1" stroke-dasharray="2 2"/>
+            <circle cx="130" cy="130" r="57" fill="none" stroke="#999" stroke-width="1.2"/>
+            <circle cx="130" cy="130" r="50" fill="#fff" stroke="#333" stroke-width="1.5"/>
+            <!-- face -->
+            <circle cx="119" cy="124" r="3.5" fill="#ddd" stroke="#aaa" stroke-width="1"/>
+            <circle cx="141" cy="124" r="3.5" fill="#ddd" stroke="#aaa" stroke-width="1"/>
+            <path d="M122 136 Q130 142 138 136" stroke="#aaa" stroke-width="1.2" fill="none"/>
+
+            <!-- Heading -->
+            <text x="130" y="208" font-family="sans-serif" font-size="13.5" fill="#222" text-anchor="middle" font-weight="700">Generating your outputs</text>
+            <!-- Sub -->
+            <text x="130" y="228" font-family="sans-serif" font-size="11" fill="#888" text-anchor="middle">This takes about 20 seconds.</text>
+
+            <!-- Step list (max-width 200, centered) -->
+            <!-- Step 0 ACTIVE -->
+            <rect x="30" y="252" width="200" height="34" rx="5" fill="#f8f8f8" stroke="#333" stroke-width="1.5"/>
+            <text x="48" y="274" font-family="monospace" font-size="13" fill="#333">◌</text>
+            <text x="68" y="274" font-family="sans-serif" font-size="11" fill="#222" font-weight="700">Building process flowchart…</text>
+
+            <!-- Step 1 pending -->
+            <rect x="30" y="292" width="200" height="30" rx="5" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>
+            <text x="48" y="312" font-family="monospace" font-size="13" fill="#aaa">○</text>
+            <text x="68" y="312" font-family="sans-serif" font-size="11" fill="#aaa">Generating SIPOC table…</text>
+
+            <!-- Step 2 pending -->
+            <rect x="30" y="328" width="200" height="30" rx="5" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>
+            <text x="48" y="348" font-family="monospace" font-size="13" fill="#aaa">○</text>
+            <text x="68" y="348" font-family="sans-serif" font-size="11" fill="#aaa">Writing SOP document…</text>
+
+            <!-- Step 3 pending -->
+            <rect x="30" y="364" width="200" height="30" rx="5" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>
+            <text x="48" y="384" font-family="monospace" font-size="13" fill="#aaa">○</text>
+            <text x="68" y="384" font-family="sans-serif" font-size="11" fill="#aaa">Transcribing interview…</text>
+
+            <!-- State annotation -->
+            <text x="10" y="424" font-family="monospace" font-size="8.5" fill="#bbb">step = 0</text>
+            <text x="10" y="438" font-family="monospace" font-size="8.5" fill="#bbb">t = 0ms</text>
+
+            <text x="10" y="490" font-family="monospace" font-size="8" fill="#aaa">Wireframe A · Step 0 active</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Wireframe B -->
+      <div>
+        <div class="wireframe-label">B — Mid progress (step 2 active)</div>
+        <div class="svg-wrap">
+          <svg viewBox="0 0 260 500" xmlns="http://www.w3.org/2000/svg" width="100%">
+            <rect width="260" height="500" fill="#f0f0f0"/>
+            <rect width="260" height="32" fill="#fff" stroke="#ddd" stroke-width="1"/>
+            <text x="10" y="21" font-family="monospace" font-size="8.5" fill="#555">Process Discovery › … › Generating</text>
+
+            <!-- Timmy -->
+            <circle cx="130" cy="130" r="72" fill="none" stroke="#ccc" stroke-width="1" stroke-dasharray="3 3"/>
+            <circle cx="130" cy="130" r="65" fill="none" stroke="#bbb" stroke-width="1" stroke-dasharray="2 2"/>
+            <circle cx="130" cy="130" r="57" fill="none" stroke="#999" stroke-width="1.2"/>
+            <circle cx="130" cy="130" r="50" fill="#fff" stroke="#333" stroke-width="1.5"/>
+            <circle cx="119" cy="124" r="3.5" fill="#ddd" stroke="#aaa" stroke-width="1"/>
+            <circle cx="141" cy="124" r="3.5" fill="#ddd" stroke="#aaa" stroke-width="1"/>
+            <path d="M122 136 Q130 142 138 136" stroke="#aaa" stroke-width="1.2" fill="none"/>
+
+            <text x="130" y="208" font-family="sans-serif" font-size="13.5" fill="#222" text-anchor="middle" font-weight="700">Generating your outputs</text>
+            <text x="130" y="228" font-family="sans-serif" font-size="11" fill="#888" text-anchor="middle">This takes about 20 seconds.</text>
+
+            <!-- Step 0 DONE -->
+            <rect x="30" y="252" width="200" height="30" rx="5" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>
+            <text x="48" y="272" font-family="monospace" font-size="13" fill="#666">✓</text>
+            <text x="68" y="272" font-family="sans-serif" font-size="11" fill="#666">Building process flowchart…</text>
+
+            <!-- Step 1 DONE -->
+            <rect x="30" y="288" width="200" height="30" rx="5" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>
+            <text x="48" y="308" font-family="monospace" font-size="13" fill="#666">✓</text>
+            <text x="68" y="308" font-family="sans-serif" font-size="11" fill="#666">Generating SIPOC table…</text>
+
+            <!-- Step 2 ACTIVE -->
+            <rect x="30" y="324" width="200" height="34" rx="5" fill="#f8f8f8" stroke="#333" stroke-width="1.5"/>
+            <text x="48" y="346" font-family="monospace" font-size="13" fill="#333">◌</text>
+            <text x="68" y="346" font-family="sans-serif" font-size="11" fill="#222" font-weight="700">Writing SOP document…</text>
+
+            <!-- Step 3 pending -->
+            <rect x="30" y="364" width="200" height="30" rx="5" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>
+            <text x="48" y="384" font-family="monospace" font-size="13" fill="#aaa">○</text>
+            <text x="68" y="384" font-family="sans-serif" font-size="11" fill="#aaa">Transcribing interview…</text>
+
+            <text x="10" y="424" font-family="monospace" font-size="8.5" fill="#bbb">step = 2</text>
+            <text x="10" y="438" font-family="monospace" font-size="8.5" fill="#bbb">t ≈ 1600ms</text>
+
+            <text x="10" y="490" font-family="monospace" font-size="8" fill="#aaa">Wireframe B · Steps 0-1 done · Step 2 active</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Wireframe C -->
+      <div>
+        <div class="wireframe-label">C — All done (about to navigate)</div>
+        <div class="svg-wrap">
+          <svg viewBox="0 0 260 500" xmlns="http://www.w3.org/2000/svg" width="100%">
+            <rect width="260" height="500" fill="#f0f0f0"/>
+            <rect width="260" height="32" fill="#fff" stroke="#ddd" stroke-width="1"/>
+            <text x="10" y="21" font-family="monospace" font-size="8.5" fill="#555">Process Discovery › … › Generating</text>
+
+            <!-- Timmy -->
+            <circle cx="130" cy="130" r="72" fill="none" stroke="#ccc" stroke-width="1" stroke-dasharray="3 3"/>
+            <circle cx="130" cy="130" r="65" fill="none" stroke="#bbb" stroke-width="1" stroke-dasharray="2 2"/>
+            <circle cx="130" cy="130" r="57" fill="none" stroke="#999" stroke-width="1.2"/>
+            <circle cx="130" cy="130" r="50" fill="#fff" stroke="#333" stroke-width="1.5"/>
+            <circle cx="119" cy="124" r="3.5" fill="#ddd" stroke="#aaa" stroke-width="1"/>
+            <circle cx="141" cy="124" r="3.5" fill="#ddd" stroke="#aaa" stroke-width="1"/>
+            <path d="M122 136 Q130 142 138 136" stroke="#aaa" stroke-width="1.2" fill="none"/>
+
+            <text x="130" y="208" font-family="sans-serif" font-size="13.5" fill="#222" text-anchor="middle" font-weight="700">Generating your outputs</text>
+            <text x="130" y="228" font-family="sans-serif" font-size="11" fill="#888" text-anchor="middle">This takes about 20 seconds.</text>
+
+            <!-- All 4 steps DONE -->
+            <rect x="30" y="252" width="200" height="30" rx="5" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>
+            <text x="48" y="272" font-family="monospace" font-size="13" fill="#555">✓</text>
+            <text x="68" y="272" font-family="sans-serif" font-size="11" fill="#555">Building process flowchart…</text>
+
+            <rect x="30" y="288" width="200" height="30" rx="5" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>
+            <text x="48" y="308" font-family="monospace" font-size="13" fill="#555">✓</text>
+            <text x="68" y="308" font-family="sans-serif" font-size="11" fill="#555">Generating SIPOC table…</text>
+
+            <rect x="30" y="324" width="200" height="30" rx="5" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>
+            <text x="48" y="344" font-family="monospace" font-size="13" fill="#555">✓</text>
+            <text x="68" y="344" font-family="sans-serif" font-size="11" fill="#555">Writing SOP document…</text>
+
+            <rect x="30" y="360" width="200" height="30" rx="5" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>
+            <text x="48" y="380" font-family="monospace" font-size="13" fill="#555">✓</text>
+            <text x="68" y="380" font-family="sans-serif" font-size="11" fill="#555">Transcribing interview…</text>
+
+            <text x="10" y="424" font-family="monospace" font-size="8.5" fill="#bbb">step = 4 (STEPS.length)</text>
+            <text x="10" y="438" font-family="monospace" font-size="8.5" fill="#bbb">t ≈ 3200ms → +600ms → navigate</text>
+
+            <!-- navigate badge -->
+            <rect x="70" y="450" width="120" height="26" rx="8" fill="#f0f0f0" stroke="#aaa" stroke-width="1.5" stroke-dasharray="3 2"/>
+            <text x="130" y="467" font-family="monospace" font-size="9" fill="#555" text-anchor="middle">→ navigate(/outputs)</text>
+
+            <text x="10" y="492" font-family="monospace" font-size="8" fill="#aaa">Wireframe C · All done · 600ms pause</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ TIMER ANIMATION DIAGRAM ═════════════════════════ -->
+  <section>
+    <div class="section-label">Timer Logic</div>
+    <h2>Animation Timeline</h2>
+    <p class="section-desc">Total wall-clock time from mount to navigation: 4 × 800ms + 600ms = <strong style="color:var(--text)">3 800ms</strong>. A single <code>useEffect([step])</code> drives the entire sequence.</p>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 800 180" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <rect width="800" height="180" fill="#f0f0f0"/>
+
+        <!-- Timeline track -->
+        <line x1="40" y1="90" x2="760" y2="90" stroke="#bbb" stroke-width="2"/>
+
+        <!-- Mount point -->
+        <circle cx="40" cy="90" r="7" fill="#fff" stroke="#333" stroke-width="2"/>
+        <text x="40" y="78" font-family="monospace" font-size="10" fill="#333" text-anchor="middle">mount</text>
+        <text x="40" y="115" font-family="monospace" font-size="9" fill="#888" text-anchor="middle">step=0</text>
+        <text x="40" y="128" font-family="monospace" font-size="9" fill="#888" text-anchor="middle">active</text>
+
+        <!-- +800ms → step 1 active -->
+        <text x="145" y="78" font-family="monospace" font-size="9" fill="#aaa" text-anchor="middle">+800ms</text>
+        <circle cx="185" cy="90" r="7" fill="#fff" stroke="#555" stroke-width="2"/>
+        <text x="185" y="115" font-family="monospace" font-size="9" fill="#555" text-anchor="middle">step=1</text>
+        <text x="185" y="128" font-family="monospace" font-size="9" fill="#888" text-anchor="middle">active</text>
+        <text x="112" y="88" font-family="monospace" font-size="10" fill="#888" text-anchor="middle">✓ done 0</text>
+
+        <!-- +800ms → step 2 active -->
+        <text x="285" y="78" font-family="monospace" font-size="9" fill="#aaa" text-anchor="middle">+800ms</text>
+        <circle cx="325" cy="90" r="7" fill="#fff" stroke="#555" stroke-width="2"/>
+        <text x="325" y="115" font-family="monospace" font-size="9" fill="#555" text-anchor="middle">step=2</text>
+        <text x="325" y="128" font-family="monospace" font-size="9" fill="#888" text-anchor="middle">active</text>
+        <text x="255" y="88" font-family="monospace" font-size="10" fill="#888" text-anchor="middle">✓ done 1</text>
+
+        <!-- +800ms → step 3 active -->
+        <text x="425" y="78" font-family="monospace" font-size="9" fill="#aaa" text-anchor="middle">+800ms</text>
+        <circle cx="465" cy="90" r="7" fill="#fff" stroke="#555" stroke-width="2"/>
+        <text x="465" y="115" font-family="monospace" font-size="9" fill="#555" text-anchor="middle">step=3</text>
+        <text x="465" y="128" font-family="monospace" font-size="9" fill="#888" text-anchor="middle">active</text>
+        <text x="395" y="88" font-family="monospace" font-size="10" fill="#888" text-anchor="middle">✓ done 2</text>
+
+        <!-- +800ms → step 4 (all done) -->
+        <text x="565" y="78" font-family="monospace" font-size="9" fill="#aaa" text-anchor="middle">+800ms</text>
+        <circle cx="605" cy="90" r="7" fill="#fff" stroke="#555" stroke-width="2"/>
+        <text x="605" y="115" font-family="monospace" font-size="9" fill="#555" text-anchor="middle">step=4</text>
+        <text x="605" y="128" font-family="monospace" font-size="9" fill="#888" text-anchor="middle">all done</text>
+        <text x="535" y="88" font-family="monospace" font-size="10" fill="#888" text-anchor="middle">✓ done 3</text>
+
+        <!-- +600ms → navigate -->
+        <text x="683" y="78" font-family="monospace" font-size="9" fill="#aaa" text-anchor="middle">+600ms</text>
+        <circle cx="750" cy="90" r="10" fill="#fff" stroke="#222" stroke-width="2.5"/>
+        <text x="750" y="94" font-family="monospace" font-size="9" fill="#222" text-anchor="middle">nav</text>
+        <text x="750" y="114" font-family="monospace" font-size="8" fill="#555" text-anchor="middle">/outputs</text>
+
+        <!-- Total annotation -->
+        <rect x="260" y="148" width="280" height="22" rx="6" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <text x="400" y="163" font-family="monospace" font-size="10" fill="#555" text-anchor="middle">Total: 4 × 800ms + 600ms = 3 800ms</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ═══════ STEP VISUAL STATES TABLE ════════════════════════ -->
+  <section>
+    <div class="section-label">Step States</div>
+    <h2>Visual State Table</h2>
+    <p class="section-desc">Each step renders one of three visual states based on its index relative to the current <code>step</code> value. The ternary for class and icon must always be in sync.</p>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 800 186" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <rect width="800" height="186" fill="#f0f0f0"/>
+
+        <!-- Header -->
+        <rect x="0" y="0" width="800" height="36" fill="#fff" stroke="#ddd" stroke-width="1"/>
+        <text x="30" y="23" font-family="monospace" font-size="10" fill="#888">CONDITION</text>
+        <text x="180" y="23" font-family="monospace" font-size="10" fill="#888">CLASS MODIFIER</text>
+        <text x="340" y="23" font-family="monospace" font-size="10" fill="#888">ICON</text>
+        <text x="440" y="23" font-family="monospace" font-size="10" fill="#888">TEXT COLOR</text>
+        <text x="600" y="23" font-family="monospace" font-size="10" fill="#888">CSS VAR</text>
+
+        <!-- Row: done -->
+        <rect x="0" y="36" width="800" height="44" fill="#fafafa" stroke="#eee" stroke-width="1"/>
+        <text x="30" y="63" font-family="monospace" font-size="11" fill="#333">i &lt; step</text>
+        <rect x="168" y="46" width="60" height="22" rx="4" fill="#e8f2ec" stroke="#aaa" stroke-width="1"/>
+        <text x="198" y="61" font-family="monospace" font-size="10" fill="#333" text-anchor="middle">done</text>
+        <text x="355" y="64" font-family="monospace" font-size="16" fill="#555" text-anchor="middle">✓</text>
+        <text x="440" y="63" font-family="sans-serif" font-size="11" fill="#666">Green (beam-green-soft)</text>
+        <text x="600" y="63" font-family="monospace" font-size="10" fill="#666">--beam-green-soft</text>
+
+        <!-- Row: active -->
+        <rect x="0" y="80" width="800" height="44" fill="#fafafa" stroke="#eee" stroke-width="1"/>
+        <text x="30" y="107" font-family="monospace" font-size="11" fill="#333">i === step</text>
+        <rect x="168" y="90" width="60" height="22" rx="4" fill="#e8eef8" stroke="#aaa" stroke-width="1"/>
+        <text x="198" y="105" font-family="monospace" font-size="10" fill="#333" text-anchor="middle">active</text>
+        <text x="355" y="108" font-family="monospace" font-size="16" fill="#333" text-anchor="middle">◌</text>
+        <text x="440" y="107" font-family="sans-serif" font-size="11" fill="#333">White / fg-on-dark-1</text>
+        <text x="600" y="107" font-family="monospace" font-size="10" fill="#666">--fg-on-dark-1</text>
+        <!-- Bold indicator -->
+        <rect x="720" y="90" width="60" height="22" rx="4" fill="#efefef" stroke="#bbb" stroke-width="1"/>
+        <text x="750" y="105" font-family="sans-serif" font-size="10" fill="#333" text-anchor="middle" font-weight="700">bold</text>
+
+        <!-- Row: pending -->
+        <rect x="0" y="124" width="800" height="44" fill="#fafafa" stroke="#eee" stroke-width="1"/>
+        <text x="30" y="151" font-family="monospace" font-size="11" fill="#aaa">i &gt; step</text>
+        <rect x="168" y="134" width="70" height="22" rx="4" fill="#efefef" stroke="#ccc" stroke-width="1"/>
+        <text x="203" y="149" font-family="monospace" font-size="10" fill="#888" text-anchor="middle">pending</text>
+        <text x="355" y="152" font-family="monospace" font-size="16" fill="#aaa" text-anchor="middle">○</text>
+        <text x="440" y="151" font-family="sans-serif" font-size="11" fill="#aaa">Muted / fg-on-dark-3</text>
+        <text x="600" y="151" font-family="monospace" font-size="10" fill="#aaa">--fg-on-dark-3</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ═══════ FILE CHANGES TABLE ═══════════════════════════════ -->
+  <section>
+    <div class="section-label">Required Changes</div>
+    <h2>All File Changes</h2>
+    <p class="section-desc">Four files touched. Three modifications, one new creation. All are required — missing any one will break the flow.</p>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 800 196" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <rect width="800" height="196" fill="#f0f0f0"/>
+
+        <!-- Header -->
+        <rect x="0" y="0" width="800" height="36" fill="#fff" stroke="#ddd" stroke-width="1"/>
+        <text x="30" y="23" font-family="monospace" font-size="10" fill="#888">FILE</text>
+        <text x="340" y="23" font-family="monospace" font-size="10" fill="#888">CHANGE TYPE</text>
+        <text x="460" y="23" font-family="monospace" font-size="10" fill="#888">WHAT TO DO</text>
+
+        <!-- Row 1: GeneratingOutputs.jsx CREATE -->
+        <rect x="0" y="36" width="800" height="40" fill="#fffdf0" stroke="#eee" stroke-width="1"/>
+        <text x="30" y="61" font-family="monospace" font-size="11" fill="#333">src/screens/GeneratingOutputs.jsx</text>
+        <rect x="330" y="46" width="74" height="22" rx="4" fill="rgba(245,158,11,0.12)" stroke="rgba(245,158,11,0.3)" stroke-width="1"/>
+        <text x="367" y="61" font-family="monospace" font-size="10" fill="#c97a00" text-anchor="middle">CREATE</text>
+        <text x="460" y="61" font-family="sans-serif" font-size="11" fill="#555">Full component — new file</text>
+
+        <!-- Row 2: App.jsx MODIFY -->
+        <rect x="0" y="76" width="800" height="40" fill="#fafafa" stroke="#eee" stroke-width="1"/>
+        <text x="30" y="101" font-family="monospace" font-size="11" fill="#333">src/App.jsx</text>
+        <rect x="330" y="86" width="74" height="22" rx="4" fill="rgba(91,142,240,0.12)" stroke="rgba(91,142,240,0.25)" stroke-width="1"/>
+        <text x="367" y="101" font-family="monospace" font-size="10" fill="#3d6bc4" text-anchor="middle">MODIFY</text>
+        <text x="460" y="101" font-family="sans-serif" font-size="11" fill="#555">Add import + route between /live and /outputs</text>
+
+        <!-- Row 3: InterviewInProgress.jsx MODIFY -->
+        <rect x="0" y="116" width="800" height="40" fill="#fafafa" stroke="#eee" stroke-width="1"/>
+        <text x="30" y="141" font-family="monospace" font-size="11" fill="#333">src/screens/InterviewInProgress.jsx</text>
+        <rect x="330" y="126" width="74" height="22" rx="4" fill="rgba(91,142,240,0.12)" stroke="rgba(91,142,240,0.25)" stroke-width="1"/>
+        <text x="367" y="141" font-family="monospace" font-size="10" fill="#3d6bc4" text-anchor="middle">MODIFY</text>
+        <text x="460" y="141" font-family="sans-serif" font-size="11" fill="#555">Change navigate(…/outputs) → navigate(…/generating) in handleEnd</text>
+
+        <!-- Row 4: index.css MODIFY -->
+        <rect x="0" y="156" width="800" height="40" fill="#fafafa" stroke="#eee" stroke-width="1"/>
+        <text x="30" y="181" font-family="monospace" font-size="11" fill="#333">src/index.css</text>
+        <rect x="330" y="166" width="74" height="22" rx="4" fill="rgba(91,142,240,0.12)" stroke="rgba(91,142,240,0.25)" stroke-width="1"/>
+        <text x="367" y="181" font-family="monospace" font-size="10" fill="#3d6bc4" text-anchor="middle">MODIFY</text>
+        <text x="460" y="181" font-family="sans-serif" font-size="11" fill="#555">Add .generating-step, .generating-step.done, .active, .pending, -icon, -label</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ═══════ TIMER LOGIC CODE ═════════════════════════════════ -->
+  <section>
+    <div class="section-label">Implementation</div>
+    <h2>Timer Logic — useEffect([step])</h2>
+    <p class="section-desc">One <code>useEffect</code>, one <code>useState</code>. The effect re-runs every time <code>step</code> changes. Both branches return cleanup functions so no timers leak on unmount.</p>
+    <div class="code-block"><span class="cm">// STEPS constant — defined at module level, outside the component</span>
+<span class="kw">const</span> <span class="ty">STEPS</span> = [
+  { id: <span class="str">'flowchart'</span>,  label: <span class="str">'Building process flowchart…'</span> },
+  { id: <span class="str">'sipoc'</span>,      label: <span class="str">'Generating SIPOC table…'</span> },
+  { id: <span class="str">'sop'</span>,        label: <span class="str">'Writing SOP document…'</span> },
+  { id: <span class="str">'transcript'</span>, label: <span class="str">'Transcribing interview…'</span> },
+];
+
+<span class="cm">// Inside the component:</span>
+<span class="kw">const</span> [step, setStep] = <span class="fn">useState</span>(<span class="num">0</span>);
+
+<span class="fn">useEffect</span>(() =&gt; {
+  <span class="kw">if</span> (step &lt; STEPS.length) {
+    <span class="kw">const</span> t = <span class="fn">setTimeout</span>(() =&gt; <span class="fn">setStep</span>(s =&gt; s + <span class="num">1</span>), <span class="num">800</span>);
+    <span class="kw">return</span> () =&gt; <span class="fn">clearTimeout</span>(t);         <span class="cm">// cleanup if unmounted mid-step</span>
+  } <span class="kw">else</span> {
+    <span class="kw">const</span> t = <span class="fn">setTimeout</span>(() =&gt; <span class="fn">navigate</span>(<span class="str">`/projects/${id}/outputs`</span>), <span class="num">600</span>);
+    <span class="kw">return</span> () =&gt; <span class="fn">clearTimeout</span>(t);         <span class="cm">// cleanup if navigated away</span>
+  }
+}, [step]);  <span class="cm">// re-runs every time step increments</span></div>
+
+    <div class="code-block" style="margin-top:16px"><span class="cm">// Step list markup — ternary for class and icon must stay in sync:</span>
+{<span class="ty">STEPS</span>.<span class="fn">map</span>((s, i) =&gt; (
+  &lt;<span class="kw">div</span> key={s.id} className={<span class="str">`generating-step ${i &lt; step ? 'done' : i === step ? 'active' : 'pending'}`</span>}&gt;
+    &lt;<span class="kw">span</span> className=<span class="str">"generating-step-icon"</span>&gt;
+      {i &lt; step ? <span class="str">'✓'</span> : i === step ? <span class="str">'◌'</span> : <span class="str">'○'</span>}
+    &lt;/<span class="kw">span</span>&gt;
+    &lt;<span class="kw">span</span> className=<span class="str">"generating-step-label"</span>&gt;{s.label}&lt;/<span class="kw">span</span>&gt;
+  &lt;/<span class="kw">div</span>&gt;
+))}</div>
+
+    <div class="code-block" style="margin-top:16px"><span class="cm">/* CSS classes to add to src/index.css */</span>
+<span class="fn">.generating-step</span> {
+  display: flex;
+  align-items: center;
+  gap: <span class="num">12px</span>;
+  font-size: <span class="num">14px</span>;
+  color: <span class="ty">var</span>(--fg-on-dark-3);         <span class="cm">/* pending default */</span>
+  transition: color <span class="num">0.3s</span>;             <span class="cm">/* smooth colour shift */</span>
+}
+<span class="fn">.generating-step.done</span>  { color: <span class="ty">var</span>(--beam-green-soft); }
+<span class="fn">.generating-step.active</span> { color: <span class="ty">var</span>(--fg-on-dark-1); }
+
+<span class="fn">.generating-step-icon</span> {
+  font-size: <span class="num">16px</span>;
+  width: <span class="num">20px</span>;
+  text-align: center;
+  font-family: <span class="ty">var</span>(--font-mono);
+}
+<span class="fn">.generating-step-label</span> { font-size: <span class="num">14px</span>; }</div>
+  </section>
+
+  <!-- ═══════ CONSTRAINTS ══════════════════════════════════════ -->
+  <section>
+    <div class="section-label">Scope</div>
+    <h2>Constraints — Do NOT Build</h2>
+    <p class="section-desc">Hard stops. Navigation is fully automatic. There is no user affordance to skip, pause, or retry this screen.</p>
+    <div class="constraint-grid">
+      <div class="constraint-pill"><div class="constraint-x">✕</div>No "Continue" or "Skip" button</div>
+      <div class="constraint-pill"><div class="constraint-x">✕</div>No manual step skip</div>
+      <div class="constraint-pill"><div class="constraint-x">✕</div>No real API calls (steps are cosmetic)</div>
+      <div class="constraint-pill"><div class="constraint-x">✕</div>No loading spinner outside the step list</div>
+      <div class="constraint-pill"><div class="constraint-x">✕</div>No percentage counter or progress bar</div>
+      <div class="constraint-pill"><div class="constraint-x">✕</div>No sound or haptic feedback</div>
+      <div class="constraint-pill"><div class="constraint-x">✕</div>No error state or retry button</div>
+      <div class="constraint-pill"><div class="constraint-x">✕</div>No countdown ("This takes about 20 seconds." is static)</div>
+      <div class="constraint-pill"><div class="constraint-x">✕</div>No step duration countdown</div>
+    </div>
+  </section>
+
+  <!-- ═══════ DEFINITION OF DONE ═══════════════════════════════ -->
+  <section>
+    <div class="section-label">Definition of Done</div>
+    <h2>Checklist</h2>
+    <p class="section-desc">All boxes must be ticked before this story is considered complete.</p>
+    <div class="card">
+      <div class="dod-cols">
+        <div>
+          <div class="dod-group-title">Routing &amp; Entry</div>
+          <div class="dod-item"><div class="dod-cb"></div>/projects/:id/generating renders GeneratingOutputs for valid id</div>
+          <div class="dod-item"><div class="dod-cb"></div>Invalid or missing id redirects to / immediately</div>
+          <div class="dod-item"><div class="dod-cb"></div>After ending interview, app navigates to /generating (not /outputs)</div>
+          <div class="dod-item"><div class="dod-cb"></div>updateProject call in InterviewInProgress is unchanged</div>
+
+          <div class="dod-group-title">Step Animation</div>
+          <div class="dod-item"><div class="dod-cb"></div>On mount: step 0 active (white, ◌), steps 1-3 pending (muted, ○)</div>
+          <div class="dod-item"><div class="dod-cb"></div>~800ms: step 0 done (✓), step 1 active</div>
+          <div class="dod-item"><div class="dod-cb"></div>~1600ms: step 1 done, step 2 active</div>
+          <div class="dod-item"><div class="dod-cb"></div>~2400ms: step 2 done, step 3 active</div>
+          <div class="dod-item"><div class="dod-cb"></div>~3200ms: step 3 done — all 4 steps in done state</div>
+          <div class="dod-item"><div class="dod-cb"></div>~3800ms total: auto-navigates to /projects/:id/outputs</div>
+
+          <div class="dod-group-title">Visual States</div>
+          <div class="dod-item"><div class="dod-cb"></div>pending: fg-on-dark-3 colour, ○ icon</div>
+          <div class="dod-item"><div class="dod-cb"></div>active: fg-on-dark-1 colour, ◌ icon</div>
+          <div class="dod-item"><div class="dod-cb"></div>done: beam-green-soft colour, ✓ icon</div>
+          <div class="dod-item"><div class="dod-cb"></div>Colour transitions are smooth (0.3s CSS transition)</div>
+        </div>
+        <div>
+          <div class="dod-group-title">Layout</div>
+          <div class="dod-item"><div class="dod-cb"></div>Timmy avatar size=120, state="speaking", label={false}</div>
+          <div class="dod-item"><div class="dod-cb"></div>Heading "Generating your outputs" with screen-title mt-32</div>
+          <div class="dod-item"><div class="dod-cb"></div>Sub-heading "This takes about 20 seconds." with screen-sub (muted)</div>
+          <div class="dod-item"><div class="dod-cb"></div>Step list centred, maxWidth 400px</div>
+          <div class="dod-item"><div class="dod-cb"></div>Layout uses screen-body center — no left sidebar</div>
+
+          <div class="dod-group-title">Direct URL Navigation</div>
+          <div class="dod-item"><div class="dod-cb"></div>Navigating directly to /generating from bookmark still auto-advances</div>
+
+          <div class="dod-group-title">Timer Cleanup</div>
+          <div class="dod-item"><div class="dod-cb"></div>Unmounting early cancels in-flight timers (no leak)</div>
+
+          <div class="dod-group-title">STEPS Constant</div>
+          <div class="dod-item"><div class="dod-cb"></div>STEPS defined at module level, outside the component</div>
+          <div class="dod-item"><div class="dod-cb"></div>Exactly 4 steps in spec order (flowchart → sipoc → sop → transcript)</div>
+
+          <div class="dod-group-title">Must NOT Be Present</div>
+          <div class="dod-item"><div class="dod-cb"></div>No "Continue" or "Skip" button anywhere</div>
+          <div class="dod-item"><div class="dod-cb"></div>No loading spinner outside the step list</div>
+          <div class="dod-item"><div class="dod-cb"></div>No progress bar or percentage number</div>
+          <div class="dod-item"><div class="dod-cb"></div>No network request triggered from this screen</div>
+          <div class="dod-item"><div class="dod-cb"></div>No error state or retry affordance</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

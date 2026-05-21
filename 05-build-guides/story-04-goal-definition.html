@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Story 04 — Goal Definition · Process Discovery</title>
+<style>
+  :root {
+    --bg:        #0d0d0d;
+    --surface:   #111;
+    --border:    #222;
+    --text:      #e8e8e8;
+    --text-2:    #aaa;
+    --text-3:    #666;
+    --accent:    #e8e8e8;
+    --muted:     #888;
+    --radius:    16px;
+    --font-mono: 'SF Mono', 'Fira Mono', 'Cascadia Code', monospace;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 0 0 100px;
+  }
+
+  .page { max-width: 980px; margin: 0 auto; padding: 0 36px; }
+
+  /* Hero */
+  .hero {
+    padding: 56px 0 44px;
+    border-bottom: 1px solid #1e1e1e;
+    margin-bottom: 52px;
+  }
+  .hero-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .hero h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+    margin-bottom: 18px;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .meta-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-2);
+  }
+  .meta-pill code {
+    font-family: var(--font-mono);
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    color: #bbb;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.04em;
+    padding: 3px 12px;
+    border-radius: 20px;
+    background: #1a1a1a;
+    color: #888;
+    border: 1px solid #2a2a2a;
+  }
+
+  /* Sections */
+  section { margin-bottom: 60px; }
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #1e1e1e;
+  }
+  h2 {
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .section-desc {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 26px;
+    max-width: 620px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 26px;
+  }
+  .card-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  @media (max-width: 640px) { .card-row { grid-template-columns: 1fr; } }
+
+  /* SVG wrapper */
+  .svg-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  svg { display: block; }
+
+  /* Wireframe label (caption under SVG) */
+  .wf-caption {
+    padding: 12px 20px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-3);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .wf-caption strong { color: var(--muted); }
+
+  /* Constraints grid */
+  .constraints-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .constraint {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #0f0f0f;
+    border: 1px solid #1e1e1e;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 12.5px;
+    color: var(--text-2);
+  }
+  .constraint .no-icon {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    background: #1e1e1e;
+    color: #666;
+    border-radius: 4px;
+    padding: 2px 6px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* DoD checklist */
+  .dod-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .dod-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 12.5px;
+    color: var(--text-2);
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #0f0f0f;
+    border: 1px solid #1a1a1a;
+  }
+  .dod-check {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid #333;
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    background: #111;
+  }
+
+  /* State diagram helpers */
+  .state-diagram {
+    background: #0f0f0f;
+    border: 1px solid #1e1e1e;
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  /* Anatomy label table */
+  .anatomy-table { width: 100%; border-collapse: collapse; }
+  .anatomy-table th {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    padding: 0 14px 10px;
+    border-bottom: 1px solid #1e1e1e;
+  }
+  .anatomy-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #1a1a1a;
+    vertical-align: top;
+    font-size: 12.5px;
+    color: var(--text-2);
+  }
+  .anatomy-table tr:last-child td { border-bottom: none; }
+  .anatomy-table code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #aaa;
+    background: #1a1a1a;
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  /* canStart box */
+  .logic-box {
+    background: #0f0f0f;
+    border: 1px solid #1e1e1e;
+    border-radius: 12px;
+    padding: 20px 24px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #bbb;
+    line-height: 1.9;
+  }
+  .logic-box .kw { color: #aaa; font-style: italic; }
+  .logic-box .val-true { color: #88cc88; }
+  .logic-box .val-false { color: #cc7777; }
+  .logic-box .comment { color: #555; font-style: italic; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ══════════════════════════════════════════════════════ HERO -->
+  <div class="hero">
+    <div class="hero-label">Process Discovery · Build Guide</div>
+    <h1>Story 04 — Goal Definition</h1>
+    <div class="hero-meta">
+      <div class="meta-pill">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L7 13M1 7L13 7" stroke="#666" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Route <code>/projects/:id/goals</code>
+      </div>
+      <div class="meta-pill">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="1.5" width="11" height="11" rx="2" stroke="#666" stroke-width="1.3"/></svg>
+        File <code>src/screens/GoalDefinition.jsx</code>
+      </div>
+      <div class="meta-pill">
+        Step <code>3 of 4</code> in setup wizard
+      </div>
+      <span class="badge">Step 3 · Goal Selection</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ WIREFRAME A -->
+  <section>
+    <div class="section-label">Wireframe A</div>
+    <h2>Default goals — view mode</h2>
+    <p class="section-desc">3 default goals when <code>contextBlob</code> is falsy. No edit active. "Start interview →" is enabled.</p>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 800 560" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <!-- App background -->
+        <rect width="800" height="560" fill="#f0f0f0"/>
+
+        <!-- Nav bar -->
+        <rect width="800" height="40" fill="#fff" stroke="#ddd" stroke-width="1"/>
+        <!-- Nav text: breadcrumb -->
+        <text x="16" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#555">Process Discovery</text>
+        <text x="145" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#999">›</text>
+        <text x="155" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#555">Acme Logistics · Refund request handling</text>
+        <text x="387" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#999">›</text>
+        <text x="397" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#333" font-weight="600">Goals</text>
+
+        <!-- Step indicator -->
+        <text x="80" y="64" font-family="system-ui,sans-serif" font-size="11.5" fill="#aaa">Project</text>
+        <text x="138" y="64" font-family="system-ui,sans-serif" font-size="11.5" fill="#ccc">›</text>
+        <text x="148" y="64" font-family="system-ui,sans-serif" font-size="11.5" fill="#aaa">Context</text>
+        <text x="204" y="64" font-family="system-ui,sans-serif" font-size="11.5" fill="#ccc">›</text>
+        <text x="214" y="64" font-family="system-ui,sans-serif" font-size="11.5" fill="#222" font-weight="700" text-decoration="underline">Goals</text>
+        <text x="250" y="64" font-family="system-ui,sans-serif" font-size="11.5" fill="#ccc">›</text>
+        <text x="260" y="64" font-family="system-ui,sans-serif" font-size="11.5" fill="#aaa">Interview</text>
+
+        <!-- Timmy avatar circle -->
+        <circle cx="80" cy="108" r="28" fill="#fff" stroke="#333" stroke-width="1.5"/>
+        <!-- Simple face in circle -->
+        <circle cx="73" cy="104" r="3" fill="#555"/>
+        <circle cx="87" cy="104" r="3" fill="#555"/>
+        <path d="M74 114 Q80 119 86 114" stroke="#555" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <!-- Decorative ring on Timmy -->
+        <circle cx="80" cy="108" r="24" fill="none" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="3 3"/>
+
+        <!-- Heading block -->
+        <text x="122" y="100" font-family="system-ui,sans-serif" font-size="17" fill="#222" font-weight="700">Here's what Timmy will explore</text>
+        <text x="122" y="120" font-family="system-ui,sans-serif" font-size="11.5" fill="#777">Generated from your context. Edit, remove, or add — up to 5 goals.</text>
+
+        <!-- Goal card 1 -->
+        <rect x="60" y="146" width="680" height="52" rx="8" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <rect x="72" y="159" width="22" height="22" rx="4" fill="#f0f0f0" stroke="#ccc" stroke-width="1"/>
+        <text x="80" y="174" font-family="system-ui,sans-serif" font-size="11" fill="#555" text-anchor="middle">1</text>
+        <text x="106" y="174" font-family="system-ui,sans-serif" font-size="12.5" fill="#333">Walk me through the process end to end</text>
+        <!-- Edit button -->
+        <rect x="575" y="159" width="58" height="24" rx="5" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <text x="604" y="175" font-family="system-ui,sans-serif" font-size="11" fill="#555" text-anchor="middle">✎ Edit</text>
+        <!-- Delete button -->
+        <rect x="641" y="159" width="30" height="24" rx="5" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <text x="656" y="175" font-family="system-ui,sans-serif" font-size="12" fill="#d88" text-anchor="middle">✕</text>
+
+        <!-- Goal card 2 -->
+        <rect x="60" y="208" width="680" height="52" rx="8" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <rect x="72" y="221" width="22" height="22" rx="4" fill="#f0f0f0" stroke="#ccc" stroke-width="1"/>
+        <text x="80" y="236" font-family="system-ui,sans-serif" font-size="11" fill="#555" text-anchor="middle">2</text>
+        <text x="106" y="236" font-family="system-ui,sans-serif" font-size="12.5" fill="#333">Who are the people involved and what do they each do?</text>
+        <rect x="575" y="221" width="58" height="24" rx="5" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <text x="604" y="237" font-family="system-ui,sans-serif" font-size="11" fill="#555" text-anchor="middle">✎ Edit</text>
+        <rect x="641" y="221" width="30" height="24" rx="5" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <text x="656" y="237" font-family="system-ui,sans-serif" font-size="12" fill="#d88" text-anchor="middle">✕</text>
+
+        <!-- Goal card 3 -->
+        <rect x="60" y="270" width="680" height="52" rx="8" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <rect x="72" y="283" width="22" height="22" rx="4" fill="#f0f0f0" stroke="#ccc" stroke-width="1"/>
+        <text x="80" y="298" font-family="system-ui,sans-serif" font-size="11" fill="#555" text-anchor="middle">3</text>
+        <text x="106" y="298" font-family="system-ui,sans-serif" font-size="12.5" fill="#333">What systems or tools are used at each step?</text>
+        <rect x="575" y="283" width="58" height="24" rx="5" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <text x="604" y="299" font-family="system-ui,sans-serif" font-size="11" fill="#555" text-anchor="middle">✎ Edit</text>
+        <rect x="641" y="283" width="30" height="24" rx="5" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <text x="656" y="299" font-family="system-ui,sans-serif" font-size="12" fill="#d88" text-anchor="middle">✕</text>
+
+        <!-- Dashed "Add a goal" card -->
+        <rect x="60" y="332" width="680" height="44" rx="8" fill="#fafafa" stroke="#bbb" stroke-width="1.2" stroke-dasharray="6 4"/>
+        <text x="90" y="358" font-family="system-ui,sans-serif" font-size="17" fill="#aaa">+</text>
+        <text x="114" y="358" font-family="system-ui,sans-serif" font-size="12.5" fill="#aaa">Add a goal (3/5)</text>
+
+        <!-- Footer separator -->
+        <line x1="60" y1="410" x2="740" y2="410" stroke="#ddd" stroke-width="1"/>
+
+        <!-- Footer: Back button -->
+        <rect x="60" y="422" width="80" height="32" rx="6" fill="#fff" stroke="#bbb" stroke-width="1" stroke-dasharray="4 3"/>
+        <text x="100" y="442" font-family="system-ui,sans-serif" font-size="12" fill="#555" text-anchor="middle">← Back</text>
+
+        <!-- Footer: counter text -->
+        <text x="480" y="441" font-family="system-ui,sans-serif" font-size="12" fill="#999" text-anchor="middle">3 goals · Timmy will cover them in order</text>
+
+        <!-- Footer: Start interview button (active) -->
+        <rect x="612" y="422" width="148" height="32" rx="6" fill="#222" stroke="#222" stroke-width="1"/>
+        <text x="686" y="442" font-family="system-ui,sans-serif" font-size="12" fill="#fff" text-anchor="middle">Start interview →</text>
+      </svg>
+      <div class="wf-caption"><strong>A</strong> · Default goals (contextBlob falsy) · View mode · 3 goals · Start button enabled</div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ WIREFRAME B -->
+  <section>
+    <div class="section-label">Wireframe B</div>
+    <h2>Edit mode — goal 2 being edited</h2>
+    <p class="section-desc">Inline input replaces the text span. Keyboard hint shown. Other goals remain in view mode.</p>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 800 560" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <rect width="800" height="560" fill="#f0f0f0"/>
+
+        <!-- Nav bar -->
+        <rect width="800" height="40" fill="#fff" stroke="#ddd" stroke-width="1"/>
+        <text x="16" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#555">Process Discovery</text>
+        <text x="145" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#999">›</text>
+        <text x="155" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#555">Acme Logistics · Refund request handling</text>
+        <text x="387" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#999">›</text>
+        <text x="397" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#333" font-weight="600">Goals</text>
+
+        <!-- Step indicator -->
+        <text x="80" y="64" font-family="system-ui,sans-serif" font-size="11.5" fill="#aaa">Project</text>
+        <text x="138" y="64" font-family="system-ui,sans-serif" font-size="11.5" fill="#ccc">›</text>
+        <text x="148" y="64" font-family="system-ui,sans-serif" font-size="11.5" fill="#aaa">Context</text>
+        <text x="204" y="64" font-family="system-ui,sans-serif" font-size="11.5" fill="#ccc">›</text>
+        <text x="214" y="64" font-family="system-ui,sans-serif" font-size="11.5" fill="#222" font-weight="700" text-decoration="underline">Goals</text>
+        <text x="250" y="64" font-family="system-ui,sans-serif" font-size="11.5" fill="#ccc">›</text>
+        <text x="260" y="64" font-family="system-ui,sans-serif" font-size="11.5" fill="#aaa">Interview</text>
+
+        <!-- Timmy -->
+        <circle cx="80" cy="108" r="28" fill="#fff" stroke="#333" stroke-width="1.5"/>
+        <circle cx="73" cy="104" r="3" fill="#555"/>
+        <circle cx="87" cy="104" r="3" fill="#555"/>
+        <path d="M74 114 Q80 119 86 114" stroke="#555" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <circle cx="80" cy="108" r="24" fill="none" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="3 3"/>
+        <text x="122" y="100" font-family="system-ui,sans-serif" font-size="17" fill="#222" font-weight="700">Here's what Timmy will explore</text>
+        <text x="122" y="120" font-family="system-ui,sans-serif" font-size="11.5" fill="#777">Generated from your context. Edit, remove, or add — up to 5 goals.</text>
+
+        <!-- Goal card 1 — view mode -->
+        <rect x="60" y="146" width="680" height="52" rx="8" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <rect x="72" y="159" width="22" height="22" rx="4" fill="#f0f0f0" stroke="#ccc" stroke-width="1"/>
+        <text x="80" y="174" font-family="system-ui,sans-serif" font-size="11" fill="#555" text-anchor="middle">1</text>
+        <text x="106" y="174" font-family="system-ui,sans-serif" font-size="12.5" fill="#333">Walk me through the process end to end</text>
+        <rect x="575" y="159" width="58" height="24" rx="5" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <text x="604" y="175" font-family="system-ui,sans-serif" font-size="11" fill="#555" text-anchor="middle">✎ Edit</text>
+        <rect x="641" y="159" width="30" height="24" rx="5" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <text x="656" y="175" font-family="system-ui,sans-serif" font-size="12" fill="#d88" text-anchor="middle">✕</text>
+
+        <!-- Goal card 2 — EDIT MODE, active border -->
+        <rect x="60" y="208" width="680" height="58" rx="8" fill="#fafafa" stroke="#333" stroke-width="2"/>
+        <rect x="72" y="222" width="22" height="22" rx="4" fill="#e0e0e0" stroke="#999" stroke-width="1"/>
+        <text x="80" y="237" font-family="system-ui,sans-serif" font-size="11" fill="#333" text-anchor="middle" font-weight="700">2</text>
+        <!-- Inline input field -->
+        <rect x="104" y="220" width="440" height="28" rx="5" fill="#fff" stroke="#555" stroke-width="1.5"/>
+        <text x="112" y="238" font-family="system-ui,sans-serif" font-size="12" fill="#333">Who are the people involved and what do they each do?</text>
+        <!-- Text cursor -->
+        <line x1="540" y1="225" x2="540" y2="242" stroke="#333" stroke-width="1.5"/>
+        <!-- Keyboard hint -->
+        <text x="108" y="258" font-family="system-ui,sans-serif" font-size="10.5" fill="#aaa">Enter to save · Esc to cancel</text>
+        <!-- Edit / Delete still shown -->
+        <rect x="555" y="222" width="58" height="24" rx="5" fill="#e8e8e8" stroke="#888" stroke-width="1"/>
+        <text x="584" y="238" font-family="system-ui,sans-serif" font-size="11" fill="#222" text-anchor="middle" font-weight="600">✎ Edit</text>
+        <rect x="621" y="222" width="30" height="24" rx="5" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <text x="636" y="238" font-family="system-ui,sans-serif" font-size="12" fill="#d88" text-anchor="middle">✕</text>
+
+        <!-- Goal card 3 — view mode -->
+        <rect x="60" y="278" width="680" height="52" rx="8" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <rect x="72" y="291" width="22" height="22" rx="4" fill="#f0f0f0" stroke="#ccc" stroke-width="1"/>
+        <text x="80" y="306" font-family="system-ui,sans-serif" font-size="11" fill="#555" text-anchor="middle">3</text>
+        <text x="106" y="306" font-family="system-ui,sans-serif" font-size="12.5" fill="#333">What systems or tools are used at each step?</text>
+        <rect x="575" y="291" width="58" height="24" rx="5" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <text x="604" y="307" font-family="system-ui,sans-serif" font-size="11" fill="#555" text-anchor="middle">✎ Edit</text>
+        <rect x="641" y="291" width="30" height="24" rx="5" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <text x="656" y="307" font-family="system-ui,sans-serif" font-size="12" fill="#d88" text-anchor="middle">✕</text>
+
+        <!-- Add goal trigger -->
+        <rect x="60" y="340" width="680" height="44" rx="8" fill="#fafafa" stroke="#bbb" stroke-width="1.2" stroke-dasharray="6 4"/>
+        <text x="90" y="366" font-family="system-ui,sans-serif" font-size="17" fill="#aaa">+</text>
+        <text x="114" y="366" font-family="system-ui,sans-serif" font-size="12.5" fill="#aaa">Add a goal (3/5)</text>
+
+        <!-- Footer -->
+        <line x1="60" y1="416" x2="740" y2="416" stroke="#ddd" stroke-width="1"/>
+        <rect x="60" y="428" width="80" height="32" rx="6" fill="#fff" stroke="#bbb" stroke-width="1" stroke-dasharray="4 3"/>
+        <text x="100" y="448" font-family="system-ui,sans-serif" font-size="12" fill="#555" text-anchor="middle">← Back</text>
+        <text x="480" y="447" font-family="system-ui,sans-serif" font-size="12" fill="#999" text-anchor="middle">3 goals · Timmy will cover them in order</text>
+        <rect x="612" y="428" width="148" height="32" rx="6" fill="#222" stroke="#222" stroke-width="1"/>
+        <text x="686" y="448" font-family="system-ui,sans-serif" font-size="12" fill="#fff" text-anchor="middle">Start interview →</text>
+      </svg>
+      <div class="wf-caption"><strong>B</strong> · Goal 2 in edit mode · Input autoFocused with cursor · Bold border · Keyboard hint visible</div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ WIREFRAME C -->
+  <section>
+    <div class="section-label">Wireframe C</div>
+    <h2>Context-aware goals — 4 goals, processName interpolated</h2>
+    <p class="section-desc">When <code>contextBlob</code> is truthy, 4 context-aware goals are generated. Goal 1 interpolates <code>project.processName</code>.</p>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 800 580" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <rect width="800" height="580" fill="#f0f0f0"/>
+
+        <!-- Nav bar -->
+        <rect width="800" height="40" fill="#fff" stroke="#ddd" stroke-width="1"/>
+        <text x="16" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#555">Process Discovery</text>
+        <text x="145" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#999">›</text>
+        <text x="155" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#555">Acme Logistics · Refund request handling</text>
+        <text x="387" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#999">›</text>
+        <text x="397" y="25" font-family="system-ui,sans-serif" font-size="12" fill="#333" font-weight="600">Goals</text>
+
+        <!-- Step indicator -->
+        <text x="80" y="64" font-family="system-ui,sans-serif" font-size="11.5" fill="#aaa">Project</text>
+        <text x="138" y="64" font-family="system-ui,sans-serif" font-size="11.5" fill="#ccc">›</text>
+        <text x="148" y="64" font-family="system-ui,sans-serif" font-size="11.5" fill="#aaa">Context</text>
+        <text x="204" y="64" font-family="system-ui,sans-serif" font-size="11.5" fill="#ccc">›</text>
+        <text x="214" y="64" font-family="system-ui,sans-serif" font-size="11.5" fill="#222" font-weight="700" text-decoration="underline">Goals</text>
+        <text x="250" y="64" font-family="system-ui,sans-serif" font-size="11.5" fill="#ccc">›</text>
+        <text x="260" y="64" font-family="system-ui,sans-serif" font-size="11.5" fill="#aaa">Interview</text>
+
+        <!-- Timmy -->
+        <circle cx="80" cy="108" r="28" fill="#fff" stroke="#333" stroke-width="1.5"/>
+        <circle cx="73" cy="104" r="3" fill="#555"/>
+        <circle cx="87" cy="104" r="3" fill="#555"/>
+        <path d="M74 114 Q80 119 86 114" stroke="#555" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <circle cx="80" cy="108" r="24" fill="none" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="3 3"/>
+        <text x="122" y="100" font-family="system-ui,sans-serif" font-size="17" fill="#222" font-weight="700">Here's what Timmy will explore</text>
+        <text x="122" y="120" font-family="system-ui,sans-serif" font-size="11.5" fill="#777">Generated from your context. Edit, remove, or add — up to 5 goals.</text>
+
+        <!-- Goal 1 — interpolated processName -->
+        <rect x="60" y="146" width="680" height="52" rx="8" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <rect x="72" y="159" width="22" height="22" rx="4" fill="#f0f0f0" stroke="#ccc" stroke-width="1"/>
+        <text x="80" y="174" font-family="system-ui,sans-serif" font-size="11" fill="#555" text-anchor="middle">1</text>
+        <text x="106" y="174" font-family="system-ui,sans-serif" font-size="12.5" fill="#333">Map the end-to-end flow for</text>
+        <text x="296" y="174" font-family="system-ui,sans-serif" font-size="12.5" fill="#333" font-weight="600">Refund request handling</text>
+        <rect x="575" y="159" width="58" height="24" rx="5" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <text x="604" y="175" font-family="system-ui,sans-serif" font-size="11" fill="#555" text-anchor="middle">✎ Edit</text>
+        <rect x="641" y="159" width="30" height="24" rx="5" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <text x="656" y="175" font-family="system-ui,sans-serif" font-size="12" fill="#d88" text-anchor="middle">✕</text>
+
+        <!-- Goal 2 -->
+        <rect x="60" y="208" width="680" height="52" rx="8" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <rect x="72" y="221" width="22" height="22" rx="4" fill="#f0f0f0" stroke="#ccc" stroke-width="1"/>
+        <text x="80" y="236" font-family="system-ui,sans-serif" font-size="11" fill="#555" text-anchor="middle">2</text>
+        <text x="106" y="236" font-family="system-ui,sans-serif" font-size="12.5" fill="#333">Identify which steps are manual vs. system-automated today</text>
+        <rect x="575" y="221" width="58" height="24" rx="5" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <text x="604" y="237" font-family="system-ui,sans-serif" font-size="11" fill="#555" text-anchor="middle">✎ Edit</text>
+        <rect x="641" y="221" width="30" height="24" rx="5" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <text x="656" y="237" font-family="system-ui,sans-serif" font-size="12" fill="#d88" text-anchor="middle">✕</text>
+
+        <!-- Goal 3 -->
+        <rect x="60" y="270" width="680" height="52" rx="8" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <rect x="72" y="283" width="22" height="22" rx="4" fill="#f0f0f0" stroke="#ccc" stroke-width="1"/>
+        <text x="80" y="298" font-family="system-ui,sans-serif" font-size="11" fill="#555" text-anchor="middle">3</text>
+        <text x="106" y="298" font-family="system-ui,sans-serif" font-size="12.5" fill="#333">Capture the decision criteria applied at key steps</text>
+        <rect x="575" y="283" width="58" height="24" rx="5" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <text x="604" y="299" font-family="system-ui,sans-serif" font-size="11" fill="#555" text-anchor="middle">✎ Edit</text>
+        <rect x="641" y="283" width="30" height="24" rx="5" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <text x="656" y="299" font-family="system-ui,sans-serif" font-size="12" fill="#d88" text-anchor="middle">✕</text>
+
+        <!-- Goal 4 -->
+        <rect x="60" y="332" width="680" height="52" rx="8" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <rect x="72" y="345" width="22" height="22" rx="4" fill="#f0f0f0" stroke="#ccc" stroke-width="1"/>
+        <text x="80" y="360" font-family="system-ui,sans-serif" font-size="11" fill="#555" text-anchor="middle">4</text>
+        <text x="106" y="360" font-family="system-ui,sans-serif" font-size="12.5" fill="#333">Surface exceptions, edge cases, and known failure modes</text>
+        <rect x="575" y="345" width="58" height="24" rx="5" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <text x="604" y="361" font-family="system-ui,sans-serif" font-size="11" fill="#555" text-anchor="middle">✎ Edit</text>
+        <rect x="641" y="345" width="30" height="24" rx="5" fill="#fff" stroke="#ccc" stroke-width="1"/>
+        <text x="656" y="361" font-family="system-ui,sans-serif" font-size="12" fill="#d88" text-anchor="middle">✕</text>
+
+        <!-- Add goal -->
+        <rect x="60" y="394" width="680" height="44" rx="8" fill="#fafafa" stroke="#bbb" stroke-width="1.2" stroke-dasharray="6 4"/>
+        <text x="90" y="420" font-family="system-ui,sans-serif" font-size="17" fill="#aaa">+</text>
+        <text x="114" y="420" font-family="system-ui,sans-serif" font-size="12.5" fill="#aaa">Add a goal (4/5)</text>
+
+        <!-- Footer -->
+        <line x1="60" y1="466" x2="740" y2="466" stroke="#ddd" stroke-width="1"/>
+        <rect x="60" y="478" width="80" height="32" rx="6" fill="#fff" stroke="#bbb" stroke-width="1" stroke-dasharray="4 3"/>
+        <text x="100" y="498" font-family="system-ui,sans-serif" font-size="12" fill="#555" text-anchor="middle">← Back</text>
+        <text x="480" y="497" font-family="system-ui,sans-serif" font-size="12" fill="#999" text-anchor="middle">4 goals · Timmy will cover them in order</text>
+        <rect x="612" y="478" width="148" height="32" rx="6" fill="#222" stroke="#222" stroke-width="1"/>
+        <text x="686" y="498" font-family="system-ui,sans-serif" font-size="12" fill="#fff" text-anchor="middle">Start interview →</text>
+      </svg>
+      <div class="wf-caption"><strong>C</strong> · Context-aware goals (contextBlob truthy) · 4 goals · Goal 1 interpolates processName · Add shows (4/5)</div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ ANATOMY -->
+  <section>
+    <div class="section-label">Component Anatomy</div>
+    <h2>Goal card anatomy</h2>
+    <p class="section-desc">Each goal-item card has 3 zones: index badge, text/input area, action buttons.</p>
+    <div class="card-row">
+      <div class="svg-wrap">
+        <svg viewBox="0 0 380 100" xmlns="http://www.w3.org/2000/svg" width="100%">
+          <rect width="380" height="100" fill="#f0f0f0"/>
+          <!-- Card -->
+          <rect x="20" y="20" width="340" height="60" rx="7" fill="#fff" stroke="#ccc" stroke-width="1.2"/>
+          <!-- Zone 1: goal-num -->
+          <rect x="30" y="32" width="24" height="24" rx="4" fill="#f0f0f0" stroke="#bbb" stroke-width="1"/>
+          <text x="42" y="48" font-family="system-ui,sans-serif" font-size="11" fill="#555" text-anchor="middle">N</text>
+          <!-- Zone 2: text area -->
+          <text x="65" y="53" font-family="system-ui,sans-serif" font-size="12" fill="#444">Goal text (or input in edit mode)</text>
+          <!-- Zone 3: action buttons -->
+          <rect x="245" y="33" width="50" height="22" rx="4" fill="#fff" stroke="#ccc" stroke-width="1"/>
+          <text x="270" y="48" font-family="system-ui,sans-serif" font-size="10" fill="#555" text-anchor="middle">✎ Edit</text>
+          <rect x="301" y="33" width="26" height="22" rx="4" fill="#fff" stroke="#ccc" stroke-width="1"/>
+          <text x="314" y="48" font-family="system-ui,sans-serif" font-size="11" fill="#d88" text-anchor="middle">✕</text>
+
+          <!-- Annotation arrows -->
+          <!-- Zone 1 label -->
+          <line x1="42" y1="62" x2="42" y2="80" stroke="#999" stroke-width="1" stroke-dasharray="2 2"/>
+          <text x="42" y="92" font-family="system-ui,sans-serif" font-size="9" fill="#888" text-anchor="middle">goal-num</text>
+          <!-- Zone 2 label -->
+          <line x1="155" y1="62" x2="155" y2="80" stroke="#999" stroke-width="1" stroke-dasharray="2 2"/>
+          <text x="155" y="92" font-family="system-ui,sans-serif" font-size="9" fill="#888" text-anchor="middle">text / input (flex:1)</text>
+          <!-- Zone 3 label -->
+          <line x1="314" y1="62" x2="314" y2="80" stroke="#999" stroke-width="1" stroke-dasharray="2 2"/>
+          <text x="314" y="92" font-family="system-ui,sans-serif" font-size="9" fill="#888" text-anchor="middle">action btns</text>
+        </svg>
+        <div class="wf-caption"><strong>Zone map</strong> · 3-column flex layout</div>
+      </div>
+      <div class="card">
+        <table class="anatomy-table">
+          <thead>
+            <tr>
+              <th>Zone</th>
+              <th>Element</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Left</td>
+              <td><code>div.goal-num</code></td>
+              <td>1-based index. Fixed width, centered.</td>
+            </tr>
+            <tr>
+              <td>Middle</td>
+              <td><code>span</code> or <code>input.input</code></td>
+              <td><code>flex:1</code>. Span in view mode; input in edit mode with autoFocus.</td>
+            </tr>
+            <tr>
+              <td>Right</td>
+              <td><code>div.row.gap-8</code></td>
+              <td><code>flexShrink:0</code>, <code>marginLeft:8</code>. Edit + Delete buttons.</td>
+            </tr>
+            <tr>
+              <td>Delete</td>
+              <td>Inline color</td>
+              <td><code>rgb(255,150,150)</code> — do not use a CSS class here.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ STATE MACHINE -->
+  <section>
+    <div class="section-label">State Machine</div>
+    <h2>Edit mode state transitions</h2>
+    <p class="section-desc">Three state variables coordinate: <code>editingId</code>, <code>editText</code>, and <code>goals</code>.</p>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <rect width="800" height="200" fill="#f0f0f0"/>
+
+        <!-- State: View mode -->
+        <rect x="40" y="70" width="130" height="60" rx="10" fill="#fff" stroke="#555" stroke-width="2"/>
+        <text x="105" y="96" font-family="system-ui,sans-serif" font-size="12" fill="#333" text-anchor="middle" font-weight="600">View mode</text>
+        <text x="105" y="112" font-family="system-ui,sans-serif" font-size="10" fill="#888" text-anchor="middle">editingId = null</text>
+
+        <!-- Arrow: startEdit -->
+        <line x1="170" y1="100" x2="270" y2="100" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="220" y="92" font-family="system-ui,sans-serif" font-size="10" fill="#666" text-anchor="middle">click ✎ Edit</text>
+        <text x="220" y="114" font-family="system-ui,sans-serif" font-size="9" fill="#999" text-anchor="middle">startEdit(g)</text>
+
+        <!-- State: Edit mode -->
+        <rect x="270" y="70" width="130" height="60" rx="10" fill="#e8e8e8" stroke="#333" stroke-width="2.5"/>
+        <text x="335" y="96" font-family="system-ui,sans-serif" font-size="12" fill="#222" text-anchor="middle" font-weight="700">Edit mode</text>
+        <text x="335" y="112" font-family="system-ui,sans-serif" font-size="10" fill="#555" text-anchor="middle">editingId = g.id</text>
+
+        <!-- Arrow: save (Enter / blur) -->
+        <path d="M 400 80 Q 500 40 590 80" stroke="#555" stroke-width="1.5" fill="none" marker-end="url(#arrowhead)"/>
+        <text x="495" y="46" font-family="system-ui,sans-serif" font-size="10" fill="#666" text-anchor="middle">Enter / onBlur</text>
+        <text x="495" y="60" font-family="system-ui,sans-serif" font-size="9" fill="#999" text-anchor="middle">saveEdit(gId)</text>
+
+        <!-- Arrow: cancel (Esc) -->
+        <path d="M 400 120 Q 500 155 590 120" stroke="#aaa" stroke-width="1.5" fill="none" stroke-dasharray="4 3" marker-end="url(#arrowheadGray)"/>
+        <text x="495" y="152" font-family="system-ui,sans-serif" font-size="10" fill="#999" text-anchor="middle">Escape</text>
+        <text x="495" y="165" font-family="system-ui,sans-serif" font-size="9" fill="#bbb" text-anchor="middle">setEditingId(null) only</text>
+
+        <!-- State: View mode (after save) -->
+        <rect x="590" y="70" width="130" height="60" rx="10" fill="#fff" stroke="#555" stroke-width="2"/>
+        <text x="655" y="96" font-family="system-ui,sans-serif" font-size="12" fill="#333" text-anchor="middle" font-weight="600">View mode</text>
+        <text x="655" y="112" font-family="system-ui,sans-serif" font-size="10" fill="#888" text-anchor="middle">editingId = null</text>
+
+        <!-- Arrowhead marker -->
+        <defs>
+          <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#555"/>
+          </marker>
+          <marker id="arrowheadGray" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#aaa"/>
+          </marker>
+        </defs>
+      </svg>
+      <div class="wf-caption"><strong>State flow</strong> · Solid = save path · Dashed = cancel path</div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ canStart LOGIC -->
+  <section>
+    <div class="section-label">canStart Logic</div>
+    <h2>When "Start interview" is enabled vs disabled</h2>
+    <p class="section-desc">Simple derivation: at least one goal with non-empty trimmed text.</p>
+    <div class="card-row">
+      <div class="logic-box">
+        <span class="kw">// canStart computation</span><br/>
+        const canStart = goals.<span class="kw">some</span>(g => g.text.<span class="kw">trim</span>());<br/>
+        <br/>
+        <span class="kw">// Button disabled when</span><br/>
+        &lt;button disabled={!canStart}&gt;<br/>
+        <br/>
+        <span class="kw">// Example states:</span><br/>
+        goals = [] → canStart = <span class="val-false">false</span> → disabled<br/>
+        goals = [{text: ''}] → canStart = <span class="val-false">false</span> → disabled<br/>
+        goals = [{text: ' '}] → canStart = <span class="val-false">false</span> → disabled<br/>
+        goals = [{text: 'abc'}] → canStart = <span class="val-true">true</span> → enabled
+      </div>
+      <div class="card">
+        <div style="margin-bottom:14px;">
+          <div style="font-size:12px;color:#888;margin-bottom:8px;">Button enabled state</div>
+          <svg viewBox="0 0 300 70" xmlns="http://www.w3.org/2000/svg" width="100%">
+            <rect width="300" height="70" fill="#1a1a1a" rx="8"/>
+            <!-- Enabled -->
+            <rect x="20" y="20" width="110" height="30" rx="6" fill="#222" stroke="#444" stroke-width="1"/>
+            <text x="75" y="40" font-family="system-ui,sans-serif" font-size="11.5" fill="#fff" text-anchor="middle">Start interview →</text>
+            <text x="75" y="62" font-family="system-ui,sans-serif" font-size="9" fill="#666" text-anchor="middle">canStart = true</text>
+            <!-- Disabled -->
+            <rect x="170" y="20" width="110" height="30" rx="6" fill="#2a2a2a" stroke="#333" stroke-width="1"/>
+            <text x="225" y="40" font-family="system-ui,sans-serif" font-size="11.5" fill="#555" text-anchor="middle">Start interview →</text>
+            <text x="225" y="62" font-family="system-ui,sans-serif" font-size="9" fill="#555" text-anchor="middle">canStart = false</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ CONSTRAINTS -->
+  <section>
+    <div class="section-label">Constraints</div>
+    <h2>Do NOT build these</h2>
+    <p class="section-desc">Explicitly out of scope for this story.</p>
+    <div class="constraints-grid">
+      <div class="constraint"><span class="no-icon">NO</span>LLM API call — goals are pure JS, no model involved</div>
+      <div class="constraint"><span class="no-icon">NO</span>Async operations — all state changes are synchronous</div>
+      <div class="constraint"><span class="no-icon">NO</span>Confirmation dialog on remove — ✕ removes immediately</div>
+      <div class="constraint"><span class="no-icon">NO</span>Drag-to-reorder — goals stay in insertion order</div>
+      <div class="constraint"><span class="no-icon">NO</span>Goal cap error message — add trigger simply hides at 5</div>
+      <div class="constraint"><span class="no-icon">NO</span>Undo for removed goals</div>
+      <div class="constraint"><span class="no-icon">NO</span>Loading state — store is synchronous</div>
+      <div class="constraint"><span class="no-icon">NO</span>"covered" toggle on this screen — managed by interview screen</div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ DOD -->
+  <section>
+    <div class="section-label">Definition of Done</div>
+    <h2>Acceptance checklist</h2>
+    <p class="section-desc">All items must pass before marking this story done.</p>
+    <div class="dod-grid">
+      <div class="dod-item"><div class="dod-check"></div>Route /projects/:id/goals renders GoalDefinition</div>
+      <div class="dod-item"><div class="dod-check"></div>Unknown id redirects to / and renders nothing</div>
+      <div class="dod-item"><div class="dod-check"></div>contextBlob falsy → 3 default goals</div>
+      <div class="dod-item"><div class="dod-check"></div>contextBlob truthy → 4 context-aware goals, goal[0] has processName</div>
+      <div class="dod-item"><div class="dod-check"></div>Back-navigation restores saved goals (generateGoals not called)</div>
+      <div class="dod-item"><div class="dod-check"></div>"Goals" step has active class; all 4 steps render</div>
+      <div class="dod-item"><div class="dod-check"></div>Timmy renders at size=56, state="idle", label=false</div>
+      <div class="dod-item"><div class="dod-check"></div>Clicking ✎ Edit enters edit mode + autoFocuses input</div>
+      <div class="dod-item"><div class="dod-check"></div>Input initialises with current goal text</div>
+      <div class="dod-item"><div class="dod-check"></div>Enter saves and exits edit mode</div>
+      <div class="dod-item"><div class="dod-check"></div>Escape exits without saving</div>
+      <div class="dod-item"><div class="dod-check"></div>onBlur saves and exits edit mode</div>
+      <div class="dod-item"><div class="dod-check"></div>✕ removes goal immediately, no confirm</div>
+      <div class="dod-item"><div class="dod-check"></div>Delete button renders in rgb(255,150,150)</div>
+      <div class="dod-item"><div class="dod-check"></div>card-dashed visible when goals.length &lt; 5</div>
+      <div class="dod-item"><div class="dod-check"></div>Add trigger hidden when goals.length === 5</div>
+      <div class="dod-item"><div class="dod-check"></div>Clicking add trigger appends blank goal + enters edit mode</div>
+      <div class="dod-item"><div class="dod-check"></div>Counter shows current count before adding (e.g. "3/5")</div>
+      <div class="dod-item"><div class="dod-check"></div>New goal has UUID id and covered: false</div>
+      <div class="dod-item"><div class="dod-check"></div>Start button disabled when all goals blank</div>
+      <div class="dod-item"><div class="dod-check"></div>Start button enabled when ≥1 goal has non-blank text</div>
+      <div class="dod-item"><div class="dod-check"></div>Footer counter counts non-empty text goals</div>
+      <div class="dod-item"><div class="dod-check"></div>← Back navigates to /projects/:id/context</div>
+      <div class="dod-item"><div class="dod-check"></div>Start interview → calls setGoals (filtered) then navigates to /setup</div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

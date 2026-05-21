@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Story 03 — Add Context · Process Discovery</title>
+<style>
+  :root {
+    --bg:          #0d0d0d;
+    --surface:     #111;
+    --surface-2:   #1a1a1a;
+    --border:      #222;
+    --border-2:    rgba(255,255,255,0.12);
+    --text:        #e8e8e8;
+    --text-2:      #a0a0a0;
+    --text-3:      #666;
+    --accent:      #e8e8e8;
+    --green:       #52d48f;
+    --green-soft:  rgba(82,212,143,0.15);
+    --red:         #f87171;
+    --amber:       #f59e0b;
+    --font-mono:   'SF Mono', 'Fira Mono', 'Cascadia Code', monospace;
+    --font-sans:   -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --radius:      16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 0 0 80px;
+  }
+  .page { max-width: 980px; margin: 0 auto; padding: 0 36px; }
+
+  /* Hero */
+  .hero {
+    padding: 56px 0 44px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 56px;
+  }
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 14px;
+  }
+  .hero h1 {
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .meta-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-2);
+  }
+  .meta-pill code {
+    font-family: var(--font-mono);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 2px 8px;
+    font-size: 11px;
+    color: var(--text);
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.04em;
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+  .badge-green {
+    background: var(--green-soft);
+    color: var(--green);
+    border: 1px solid rgba(82,212,143,0.3);
+  }
+
+  /* Section */
+  section { margin-bottom: 60px; }
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  h2 {
+    font-size: 21px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .section-desc {
+    color: var(--text-2);
+    font-size: 13px;
+    margin-bottom: 24px;
+    max-width: 640px;
+    line-height: 1.65;
+  }
+  .section-desc code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    color: var(--text);
+  }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+  }
+  .card-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  /* SVG wrap */
+  .svg-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  svg { display: block; }
+
+  /* Constraint grid */
+  .constraint-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 10px;
+  }
+  .constraint-pill {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 15px;
+    font-size: 12px;
+    color: var(--text-2);
+  }
+  .constraint-pill .x-icon { flex-shrink: 0; color: var(--red); }
+
+  /* DoD */
+  .dod-group { margin-bottom: 26px; }
+  .dod-group:last-child { margin-bottom: 0; }
+  .dod-group-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+    font-family: var(--font-mono);
+  }
+  .dod-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.5;
+  }
+  .dod-item:last-child { border-bottom: none; }
+  .dod-checkbox {
+    flex-shrink: 0;
+    width: 15px;
+    height: 15px;
+    border: 1.5px solid #333;
+    border-radius: 4px;
+    margin-top: 2px;
+  }
+  .dod-item.must-not { color: var(--text-3); }
+  .dod-item.must-not .dod-checkbox { border-color: rgba(248,113,113,0.35); }
+
+  /* Inline note */
+  .note-box {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.65;
+  }
+  .note-box code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ═══════════════════════ HERO ══════════════════════════════ -->
+  <div class="hero">
+    <div class="hero-eyebrow">Story 03 · Process Discovery</div>
+    <h1>Add Context</h1>
+    <div class="hero-meta">
+      <div class="meta-pill">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1.5 2.5h10M1.5 6.5h10M1.5 10.5h6" stroke="#888" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Screen <code>AddContext</code>
+      </div>
+      <div class="meta-pill">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.5L11.5 6.5L6.5 11.5M1.5 6.5h10" stroke="#888" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Route <code>/projects/:id/context</code>
+      </div>
+      <div class="meta-pill">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 1.5h6l3 3v7h-9v-10z" stroke="#888" stroke-width="1.4" stroke-linejoin="round"/><path d="M8.5 1.5v3h3" stroke="#888" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        File <code>src/screens/AddContext.jsx</code>
+      </div>
+      <div class="badge badge-green">
+        <svg width="7" height="7"><circle cx="3.5" cy="3.5" r="3.5" fill="currentColor"/></svg>
+        Exists — verify &amp; fix gaps
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════ STEP INDICATOR ════════════════════ -->
+  <section>
+    <div class="section-label">Step Indicator</div>
+    <h2>Wizard progress bar</h2>
+    <p class="section-desc">Four steps separated by <code>›</code> characters. The active step has class <code>active</code>. On this screen, Context is active. No other step gets the active class.</p>
+
+    <div class="svg-wrap">
+      <svg viewBox="0 0 820 90" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <rect width="820" height="90" fill="#111"/>
+
+        <!-- Steps background -->
+        <rect x="50" y="28" width="720" height="34" rx="8" fill="#1a1a1a" stroke="#222" stroke-width="1"/>
+
+        <!-- Step 1: Project (inactive) -->
+        <text x="150" y="49" font-family="-apple-system,sans-serif" font-size="13" fill="#555" text-anchor="middle">Project</text>
+
+        <!-- Separator 1 -->
+        <text x="240" y="50" font-family="-apple-system,sans-serif" font-size="14" fill="#333" text-anchor="middle">›</text>
+
+        <!-- Step 2: Context (ACTIVE) -->
+        <rect x="258" y="34" width="84" height="22" rx="5" fill="#f5f5f5"/>
+        <text x="300" y="49" font-family="-apple-system,sans-serif" font-size="13" font-weight="700" fill="#111" text-anchor="middle">Context</text>
+
+        <!-- Separator 2 -->
+        <text x="360" y="50" font-family="-apple-system,sans-serif" font-size="14" fill="#333" text-anchor="middle">›</text>
+
+        <!-- Step 3: Goals (inactive) -->
+        <text x="430" y="49" font-family="-apple-system,sans-serif" font-size="13" fill="#555" text-anchor="middle">Goals</text>
+
+        <!-- Separator 3 -->
+        <text x="490" y="50" font-family="-apple-system,sans-serif" font-size="14" fill="#333" text-anchor="middle">›</text>
+
+        <!-- Step 4: Interview (inactive) -->
+        <text x="580" y="49" font-family="-apple-system,sans-serif" font-size="13" fill="#555" text-anchor="middle">Interview</text>
+
+        <!-- Annotation: active class -->
+        <line x1="300" y1="56" x2="300" y2="68" stroke="#555" stroke-width="1" stroke-dasharray="2 2"/>
+        <text x="300" y="78" font-family="'SF Mono',monospace" font-size="10" fill="#666" text-anchor="middle">class="active"</text>
+      </svg>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════ WIREFRAME A — EMPTY ═══════════════ -->
+  <section>
+    <div class="section-label">Wireframe A — Empty textarea</div>
+    <h2>No content pasted yet</h2>
+    <p class="section-desc">The textarea is empty on first visit (contextBlob is ''). No token chips are shown. Both "Skip for now" and "Continue →" are available — Continue is never disabled.</p>
+
+    <div class="svg-wrap">
+      <svg viewBox="0 0 820 620" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <!-- Browser chrome -->
+        <rect width="820" height="620" fill="#f0f0f0"/>
+        <rect width="820" height="36" fill="#e0e0e0"/>
+        <rect x="0" y="36" width="820" height="1" fill="#ccc"/>
+        <rect x="200" y="8" width="420" height="20" rx="4" fill="#d5d5d5" stroke="#c5c5c5" stroke-width="1"/>
+        <text x="410" y="22" font-family="-apple-system,sans-serif" font-size="10" fill="#777" text-anchor="middle">localhost:5173/projects/abc-123/context</text>
+        <circle cx="18" cy="18" r="5" fill="#ff5f57"/>
+        <circle cx="34" cy="18" r="5" fill="#febc2e"/>
+        <circle cx="50" cy="18" r="5" fill="#28c840"/>
+
+        <!-- App nav bar -->
+        <rect x="0" y="37" width="820" height="44" fill="#fff"/>
+        <rect x="0" y="80" width="820" height="1" fill="#ddd"/>
+        <rect x="20" y="51" width="16" height="16" rx="4" fill="#ccc" stroke="#bbb" stroke-width="1"/>
+        <!-- Multi-segment breadcrumb -->
+        <text x="44" y="63" font-family="-apple-system,sans-serif" font-size="11" fill="#999">Process Discovery</text>
+        <text x="150" y="63" font-family="-apple-system,sans-serif" font-size="11" fill="#bbb">›</text>
+        <text x="160" y="63" font-family="-apple-system,sans-serif" font-size="11" fill="#888">Acme Logistics · Refund request handling</text>
+        <text x="373" y="63" font-family="-apple-system,sans-serif" font-size="11" fill="#bbb">›</text>
+        <text x="383" y="63" font-family="-apple-system,sans-serif" font-size="11" fill="#333">Context</text>
+        <circle cx="795" cy="59" r="12" fill="#e0e0e0" stroke="#ccc" stroke-width="1"/>
+        <text x="795" y="63" font-family="-apple-system,sans-serif" font-size="9" fill="#999" text-anchor="middle">SE</text>
+
+        <!-- Screen body — max-width 720, centred: x=50 -->
+        <rect x="50" y="88" width="720" height="520" fill="#f7f7f7"/>
+
+        <!-- Step indicator (compact, inside body) -->
+        <rect x="50" y="100" width="440" height="28" rx="6" fill="#ebebeb" stroke="#ddd" stroke-width="1"/>
+        <text x="115" y="118" font-family="-apple-system,sans-serif" font-size="11" fill="#aaa" text-anchor="middle">Project</text>
+        <text x="154" y="119" font-family="-apple-system,sans-serif" font-size="12" fill="#ccc">›</text>
+        <!-- Context active -->
+        <rect x="163" y="106" width="66" height="17" rx="4" fill="#f5f5f5" stroke="#ddd" stroke-width="1"/>
+        <text x="196" y="118" font-family="-apple-system,sans-serif" font-size="11" font-weight="700" fill="#222" text-anchor="middle">Context</text>
+        <text x="236" y="119" font-family="-apple-system,sans-serif" font-size="12" fill="#ccc">›</text>
+        <text x="282" y="118" font-family="-apple-system,sans-serif" font-size="11" fill="#aaa" text-anchor="middle">Goals</text>
+        <text x="318" y="119" font-family="-apple-system,sans-serif" font-size="12" fill="#ccc">›</text>
+        <text x="375" y="118" font-family="-apple-system,sans-serif" font-size="11" fill="#aaa" text-anchor="middle">Interview</text>
+
+        <!-- === Timmy avatar + heading row === -->
+        <!-- Timmy circle (56×56) -->
+        <circle cx="90" cy="183" r="28" fill="#e8e8e8" stroke="#ccc" stroke-width="1.5"/>
+        <!-- Timmy face (simplified icon) -->
+        <circle cx="90" cy="183" r="18" fill="#ddd" stroke="#bbb" stroke-width="1"/>
+        <text x="90" y="188" font-family="-apple-system,sans-serif" font-size="13" fill="#999" text-anchor="middle">T</text>
+
+        <!-- Heading block to the right of Timmy -->
+        <text x="136" y="174" font-family="-apple-system,sans-serif" font-size="18" font-weight="700" fill="#111" letter-spacing="-0.2">Give Timmy some background</text>
+        <text x="136" y="194" font-family="-apple-system,sans-serif" font-size="12" fill="#888">He'll read this before the interview starts. The more context, the sharper his questions.</text>
+
+        <!-- === Textarea field === -->
+        <!-- Label -->
+        <text x="50" y="237" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" fill="#333">Existing documentation</text>
+        <!-- Textarea box (tall, empty) -->
+        <rect x="50" y="244" width="720" height="200" rx="8" fill="#fff" stroke="#ccc" stroke-width="1.5"/>
+        <!-- Placeholder text (faint) -->
+        <text x="64" y="266" font-family="-apple-system,sans-serif" font-size="12" fill="#ccc">Paste any existing process documentation, emails, Notion exports, SOP drafts, or notes here…</text>
+        <!-- Resize handle indicator -->
+        <line x1="756" y1="434" x2="768" y2="442" stroke="#ccc" stroke-width="1"/>
+        <line x1="762" y1="432" x2="768" y2="436" stroke="#ccc" stroke-width="1"/>
+        <!-- Helper text below textarea -->
+        <text x="50" y="460" font-family="-apple-system,sans-serif" font-size="11" fill="#aaa">Plain text only for now — file upload coming soon. Anything you paste stays in this project.</text>
+
+        <!-- NO token chips (empty state — chips absent) -->
+        <!-- Annotation showing chips would appear here -->
+        <rect x="50" y="471" width="200" height="18" rx="4" fill="#f0f0f0" stroke="#ddd" stroke-width="1" stroke-dasharray="3 2"/>
+        <text x="150" y="483" font-family="-apple-system,sans-serif" font-size="10" fill="#bbb" text-anchor="middle">token chips — hidden when text.length = 0</text>
+
+        <!-- === Footer button row === -->
+        <!-- Back (ghost) -->
+        <rect x="50" y="512" width="100" height="36" rx="7" fill="none" stroke="#bbb" stroke-width="1.5" stroke-dasharray="5 3"/>
+        <text x="100" y="534" font-family="-apple-system,sans-serif" font-size="12" fill="#888" text-anchor="middle">← Back</text>
+
+        <!-- Skip for now (ghost, right side) -->
+        <rect x="522" y="512" width="118" height="36" rx="7" fill="none" stroke="#bbb" stroke-width="1.5" stroke-dasharray="5 3"/>
+        <text x="581" y="534" font-family="-apple-system,sans-serif" font-size="12" fill="#888" text-anchor="middle">Skip for now</text>
+
+        <!-- Continue → (primary, rightmost) -->
+        <rect x="654" y="512" width="116" height="36" rx="7" fill="#e0e0e0" stroke="#bbb" stroke-width="1"/>
+        <text x="712" y="534" font-family="-apple-system,sans-serif" font-size="12" fill="#888" text-anchor="middle">Continue →</text>
+        <!-- Note: Continue is never disabled -->
+        <line x1="712" y1="548" x2="712" y2="558" stroke="#ccc" stroke-width="1" stroke-dasharray="2 2"/>
+        <text x="712" y="567" font-family="-apple-system,sans-serif" font-size="10" fill="#aaa" text-anchor="middle">always enabled</text>
+      </svg>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════ WIREFRAME B — FILLED ══════════════ -->
+  <section>
+    <div class="section-label">Wireframe B — Filled textarea</div>
+    <h2>Content pasted — token chips visible</h2>
+    <p class="section-desc">When <code>text.length &gt; 0</code>, two token chips appear below the textarea. The line count is computed from non-blank lines; the token estimate uses <code>Math.round(text.length / 4)</code>. "Continue →" is the clear primary action.</p>
+
+    <div class="svg-wrap">
+      <svg viewBox="0 0 820 640" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <!-- Background -->
+        <rect width="820" height="640" fill="#f0f0f0"/>
+
+        <!-- Browser chrome -->
+        <rect width="820" height="36" fill="#e0e0e0"/>
+        <rect x="0" y="36" width="820" height="1" fill="#ccc"/>
+        <rect x="200" y="8" width="420" height="20" rx="4" fill="#d5d5d5" stroke="#c5c5c5" stroke-width="1"/>
+        <text x="410" y="22" font-family="-apple-system,sans-serif" font-size="10" fill="#777" text-anchor="middle">localhost:5173/projects/abc-123/context</text>
+        <circle cx="18" cy="18" r="5" fill="#ff5f57"/>
+        <circle cx="34" cy="18" r="5" fill="#febc2e"/>
+        <circle cx="50" cy="18" r="5" fill="#28c840"/>
+
+        <!-- App nav bar -->
+        <rect x="0" y="37" width="820" height="44" fill="#fff"/>
+        <rect x="0" y="80" width="820" height="1" fill="#ddd"/>
+        <rect x="20" y="51" width="16" height="16" rx="4" fill="#ccc" stroke="#bbb" stroke-width="1"/>
+        <text x="44" y="63" font-family="-apple-system,sans-serif" font-size="11" fill="#999">Process Discovery</text>
+        <text x="150" y="63" font-family="-apple-system,sans-serif" font-size="11" fill="#bbb">›</text>
+        <text x="160" y="63" font-family="-apple-system,sans-serif" font-size="11" fill="#888">Acme Logistics · Refund request handling</text>
+        <text x="373" y="63" font-family="-apple-system,sans-serif" font-size="11" fill="#bbb">›</text>
+        <text x="383" y="63" font-family="-apple-system,sans-serif" font-size="11" fill="#333">Context</text>
+        <circle cx="795" cy="59" r="12" fill="#e0e0e0" stroke="#ccc" stroke-width="1"/>
+        <text x="795" y="63" font-family="-apple-system,sans-serif" font-size="9" fill="#999" text-anchor="middle">SE</text>
+
+        <!-- Screen body -->
+        <rect x="50" y="88" width="720" height="540" fill="#f7f7f7"/>
+
+        <!-- Step indicator -->
+        <rect x="50" y="100" width="440" height="28" rx="6" fill="#ebebeb" stroke="#ddd" stroke-width="1"/>
+        <text x="115" y="118" font-family="-apple-system,sans-serif" font-size="11" fill="#aaa" text-anchor="middle">Project</text>
+        <text x="154" y="119" font-family="-apple-system,sans-serif" font-size="12" fill="#ccc">›</text>
+        <rect x="163" y="106" width="66" height="17" rx="4" fill="#f5f5f5" stroke="#ddd" stroke-width="1"/>
+        <text x="196" y="118" font-family="-apple-system,sans-serif" font-size="11" font-weight="700" fill="#222" text-anchor="middle">Context</text>
+        <text x="236" y="119" font-family="-apple-system,sans-serif" font-size="12" fill="#ccc">›</text>
+        <text x="282" y="118" font-family="-apple-system,sans-serif" font-size="11" fill="#aaa" text-anchor="middle">Goals</text>
+        <text x="318" y="119" font-family="-apple-system,sans-serif" font-size="12" fill="#ccc">›</text>
+        <text x="375" y="118" font-family="-apple-system,sans-serif" font-size="11" fill="#aaa" text-anchor="middle">Interview</text>
+
+        <!-- Timmy + heading -->
+        <circle cx="90" cy="183" r="28" fill="#e8e8e8" stroke="#ccc" stroke-width="1.5"/>
+        <circle cx="90" cy="183" r="18" fill="#ddd" stroke="#bbb" stroke-width="1"/>
+        <text x="90" y="188" font-family="-apple-system,sans-serif" font-size="13" fill="#999" text-anchor="middle">T</text>
+        <text x="136" y="174" font-family="-apple-system,sans-serif" font-size="18" font-weight="700" fill="#111" letter-spacing="-0.2">Give Timmy some background</text>
+        <text x="136" y="194" font-family="-apple-system,sans-serif" font-size="12" fill="#888">He'll read this before the interview starts. The more context, the sharper his questions.</text>
+
+        <!-- Textarea — FILLED (text lines as horizontal stripes) -->
+        <text x="50" y="237" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" fill="#333">Existing documentation</text>
+        <rect x="50" y="244" width="720" height="200" rx="8" fill="#fff" stroke="#999" stroke-width="1.5"/>
+
+        <!-- Simulated text lines inside textarea -->
+        <!-- Line stripes representing pasted text -->
+        <rect x="64" y="260" width="540" height="9" rx="2" fill="#ddd"/>
+        <rect x="64" y="276" width="490" height="9" rx="2" fill="#ddd"/>
+        <rect x="64" y="292" width="520" height="9" rx="2" fill="#ddd"/>
+        <rect x="64" y="308" width="380" height="9" rx="2" fill="#ddd"/>
+        <!-- blank line gap -->
+        <rect x="64" y="330" width="560" height="9" rx="2" fill="#ddd"/>
+        <rect x="64" y="346" width="440" height="9" rx="2" fill="#ddd"/>
+        <rect x="64" y="362" width="510" height="9" rx="2" fill="#ddd"/>
+        <rect x="64" y="378" width="310" height="9" rx="2" fill="#ddd"/>
+        <!-- blank line gap -->
+        <rect x="64" y="400" width="580" height="9" rx="2" fill="#ddd"/>
+        <rect x="64" y="416" width="470" height="9" rx="2" fill="#ddd"/>
+        <!-- Resize handle -->
+        <line x1="756" y1="434" x2="768" y2="442" stroke="#ccc" stroke-width="1"/>
+        <line x1="762" y1="432" x2="768" y2="436" stroke="#ccc" stroke-width="1"/>
+
+        <!-- Helper text -->
+        <text x="50" y="460" font-family="-apple-system,sans-serif" font-size="11" fill="#aaa">Plain text only for now — file upload coming soon. Anything you paste stays in this project.</text>
+
+        <!-- TOKEN CHIPS (visible because text.length > 0) -->
+        <!-- Chip 1: lines pasted -->
+        <rect x="50" y="472" width="124" height="26" rx="6" fill="#ebebeb" stroke="#ccc" stroke-width="1"/>
+        <circle cx="64" cy="485" r="4" fill="#888"/>
+        <text x="74" y="489" font-family="-apple-system,sans-serif" font-size="11" fill="#444">47 lines pasted</text>
+
+        <!-- Chip 2: tokens estimate -->
+        <rect x="182" y="472" width="108" height="26" rx="6" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>
+        <text x="236" y="489" font-family="-apple-system,sans-serif" font-size="11" fill="#888" text-anchor="middle">≈ 1,234 tokens</text>
+
+        <!-- Chip annotations -->
+        <line x1="112" y1="498" x2="112" y2="510" stroke="#ccc" stroke-width="1" stroke-dasharray="2 2"/>
+        <text x="112" y="520" font-family="'SF Mono',monospace" font-size="10" fill="#aaa" text-anchor="middle">chip · dot span + N lines</text>
+        <line x1="236" y1="498" x2="236" y2="510" stroke="#ccc" stroke-width="1" stroke-dasharray="2 2"/>
+        <text x="236" y="520" font-family="'SF Mono',monospace" font-size="10" fill="#aaa" text-anchor="middle">chip muted · ≈ tokens</text>
+
+        <!-- === Footer button row === -->
+        <!-- Back (ghost) -->
+        <rect x="50" y="538" width="100" height="36" rx="7" fill="none" stroke="#bbb" stroke-width="1.5" stroke-dasharray="5 3"/>
+        <text x="100" y="560" font-family="-apple-system,sans-serif" font-size="12" fill="#888" text-anchor="middle">← Back</text>
+
+        <!-- Skip for now (ghost) -->
+        <rect x="522" y="538" width="118" height="36" rx="7" fill="none" stroke="#bbb" stroke-width="1.5" stroke-dasharray="5 3"/>
+        <text x="581" y="560" font-family="-apple-system,sans-serif" font-size="12" fill="#888" text-anchor="middle">Skip for now</text>
+
+        <!-- Continue → (primary — prominent) -->
+        <rect x="654" y="538" width="116" height="36" rx="7" fill="#1a1a1a" stroke="#111" stroke-width="1"/>
+        <text x="712" y="560" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" fill="#fff" text-anchor="middle">Continue →</text>
+
+        <!-- Note: both Skip and Continue call handleContinue -->
+        <line x1="620" y1="574" x2="620" y2="586" stroke="#bbb" stroke-width="1" stroke-dasharray="2 2"/>
+        <text x="620" y="596" font-family="-apple-system,sans-serif" font-size="10" fill="#888" text-anchor="middle">both call handleContinue() → /projects/:id/goals</text>
+      </svg>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════ TIMMY ANATOMY ════════════════════ -->
+  <section>
+    <div class="section-label">Component Anatomy</div>
+    <h2>Timmy + heading row</h2>
+    <p class="section-desc">The avatar and heading sit in a flex row with 16px gap, vertically centred. Timmy is rendered as <code>&lt;Timmy size={56} state="idle" label={false} /&gt;</code> — no label, idle state, 56px size.</p>
+
+    <div class="svg-wrap">
+      <svg viewBox="0 0 820 180" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <rect width="820" height="180" fill="#111"/>
+
+        <!-- Row container box -->
+        <rect x="40" y="32" width="600" height="116" rx="10" fill="#1a1a1a" stroke="#2a2a2a" stroke-width="1"/>
+
+        <!-- Timmy avatar (56×56 circle) -->
+        <circle cx="110" cy="90" r="28" fill="#2a2a2a" stroke="#444" stroke-width="1.5"/>
+        <!-- Simplified T icon inside -->
+        <circle cx="110" cy="90" r="18" fill="#333" stroke="#444" stroke-width="1"/>
+        <text x="110" y="95" font-family="-apple-system,sans-serif" font-size="14" fill="#666" text-anchor="middle">T</text>
+
+        <!-- Heading block -->
+        <text x="156" y="80" font-family="-apple-system,sans-serif" font-size="17" font-weight="700" fill="#e8e8e8" letter-spacing="-0.2">Give Timmy some background</text>
+        <text x="156" y="105" font-family="-apple-system,sans-serif" font-size="12" fill="#777">He'll read this before the interview starts. The more</text>
+        <text x="156" y="120" font-family="-apple-system,sans-serif" font-size="12" fill="#777">context, the sharper his questions.</text>
+
+        <!-- Annotation: Timmy -->
+        <line x1="110" y1="118" x2="110" y2="148" stroke="#555" stroke-width="1" stroke-dasharray="3 2"/>
+        <text x="110" y="160" font-family="'SF Mono',monospace" font-size="10" fill="#666" text-anchor="middle">&lt;Timmy size={56} state="idle" label={false} /&gt;</text>
+
+        <!-- Annotation: gap -->
+        <line x1="138" y1="90" x2="155" y2="90" stroke="#444" stroke-width="1"/>
+        <text x="146" y="86" font-family="'SF Mono',monospace" font-size="9" fill="#555" text-anchor="middle">16px</text>
+
+        <!-- Annotation: h2 -->
+        <line x1="680" y1="78" x2="648" y2="78" stroke="#444" stroke-width="1" stroke-dasharray="3 2"/>
+        <text x="690" y="82" font-family="'SF Mono',monospace" font-size="10" fill="#666">screen-title · fontSize 26</text>
+
+        <!-- Annotation: p -->
+        <line x1="680" y1="112" x2="510" y2="112" stroke="#444" stroke-width="1" stroke-dasharray="3 2"/>
+        <text x="690" y="116" font-family="'SF Mono',monospace" font-size="10" fill="#555">muted · fontSize 14</text>
+      </svg>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════ TOKEN CHIP BEHAVIOUR ═══════════════ -->
+  <section>
+    <div class="section-label">Token Chip Behaviour</div>
+    <h2>Conditional rendering</h2>
+    <p class="section-desc">The chip row only mounts when <code>text.length &gt; 0</code>. Clearing the textarea removes both chips from the DOM. Chip 1 counts non-blank lines; Chip 2 estimates tokens at 4 chars per token.</p>
+
+    <div class="card-row">
+      <div class="svg-wrap">
+        <svg viewBox="0 0 390 160" xmlns="http://www.w3.org/2000/svg" width="100%">
+          <rect width="390" height="160" fill="#111"/>
+          <text x="20" y="28" font-family="'SF Mono',monospace" font-size="10" fill="#555" letter-spacing="0.1em">EMPTY — text.length = 0</text>
+
+          <!-- Textarea (empty) -->
+          <rect x="20" y="40" width="350" height="70" rx="6" fill="#1a1a1a" stroke="#2a2a2a" stroke-width="1.5"/>
+          <text x="34" y="62" font-family="-apple-system,sans-serif" font-size="11" fill="#444">Paste any existing process documentation…</text>
+
+          <!-- No chips indicator -->
+          <rect x="20" y="118" width="190" height="22" rx="5" fill="none" stroke="#333" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="115" y="133" font-family="-apple-system,sans-serif" font-size="10" fill="#444" text-anchor="middle">chips hidden — absent from DOM</text>
+        </svg>
+      </div>
+
+      <div class="svg-wrap">
+        <svg viewBox="0 0 390 160" xmlns="http://www.w3.org/2000/svg" width="100%">
+          <rect width="390" height="160" fill="#111"/>
+          <text x="20" y="28" font-family="'SF Mono',monospace" font-size="10" fill="#555" letter-spacing="0.1em">FILLED — text.length &gt; 0</text>
+
+          <!-- Textarea (filled) -->
+          <rect x="20" y="40" width="350" height="70" rx="6" fill="#1a1a1a" stroke="#333" stroke-width="1.5"/>
+          <rect x="34" y="52" width="220" height="8" rx="2" fill="#2a2a2a"/>
+          <rect x="34" y="66" width="180" height="8" rx="2" fill="#2a2a2a"/>
+          <rect x="34" y="80" width="240" height="8" rx="2" fill="#2a2a2a"/>
+          <rect x="34" y="94" width="160" height="8" rx="2" fill="#2a2a2a"/>
+
+          <!-- Chips visible -->
+          <rect x="20" y="118" width="116" height="24" rx="6" fill="#2a2a2a" stroke="#333" stroke-width="1"/>
+          <circle cx="34" cy="130" r="4" fill="#888"/>
+          <text x="44" y="134" font-family="-apple-system,sans-serif" font-size="11" fill="#bbb">47 lines pasted</text>
+
+          <rect x="144" y="118" width="104" height="24" rx="6" fill="#222" stroke="#2a2a2a" stroke-width="1"/>
+          <text x="196" y="134" font-family="-apple-system,sans-serif" font-size="11" fill="#888" text-anchor="middle">≈ 1,234 tokens</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Note box -->
+    <div class="note-box" style="margin-top:16px;">
+      <strong style="color:#e8e8e8">Token formula:</strong> <code>Math.round(text.length / 4)</code> — recomputed every render, no memoisation needed.<br/>
+      <strong style="color:#e8e8e8">Line count:</strong> <code>text.split('\n').filter(Boolean).length</code> — blank/whitespace lines do not count.<br/>
+      <strong style="color:#e8e8e8">Comma formatting:</strong> <code>tokenEst.toLocaleString()</code> — produces "1,234" not "1234" for large numbers.
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════ NAVIGATION FLOW ═══════════════════ -->
+  <section>
+    <div class="section-label">Navigation Flow</div>
+    <h2>Where each action goes</h2>
+    <p class="section-desc">"Skip for now" and "Continue →" are identical in behaviour — both call <code>handleContinue()</code>. "← Back" goes to <code>/</code> (project list), not back to CreateProject.</p>
+
+    <div class="svg-wrap">
+      <svg viewBox="0 0 820 230" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <defs>
+          <marker id="arr-d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0 1.5L8 5L0 8.5z" fill="#555"/>
+          </marker>
+          <marker id="arr-g2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0 1.5L8 5L0 8.5z" fill="#999"/>
+          </marker>
+        </defs>
+        <rect width="820" height="230" fill="#111"/>
+
+        <!-- Source: AddContext -->
+        <rect x="28" y="88" width="152" height="54" rx="10" fill="#1a1a1a" stroke="#444" stroke-width="1.5"/>
+        <text x="104" y="111" font-family="'SF Mono',monospace" font-size="11" fill="#e8e8e8" text-anchor="middle">AddContext</text>
+        <text x="104" y="129" font-family="'SF Mono',monospace" font-size="10" fill="#555" text-anchor="middle">/projects/:id/context</text>
+
+        <!-- Back trigger -->
+        <rect x="28" y="28" width="152" height="28" rx="7" fill="#1a1a1a" stroke="#2a2a2a" stroke-width="1"/>
+        <text x="104" y="46" font-family="-apple-system,sans-serif" font-size="11" fill="#777" text-anchor="middle">click "← Back"</text>
+        <line x1="104" y1="56" x2="104" y2="87" stroke="#555" stroke-width="1" stroke-dasharray="3 3"/>
+
+        <!-- Skip + Continue triggers -->
+        <rect x="28" y="172" width="152" height="26" rx="6" fill="#1a1a1a" stroke="#2a2a2a" stroke-width="1"/>
+        <text x="104" y="188" font-family="-apple-system,sans-serif" font-size="11" fill="#888" text-anchor="middle">Skip for now</text>
+        <rect x="28" y="202" width="152" height="26" rx="6" fill="#1a1a1a" stroke="#3a3a3a" stroke-width="1.5"/>
+        <text x="104" y="218" font-family="-apple-system,sans-serif" font-size="11" fill="#ccc" text-anchor="middle">Continue →</text>
+        <line x1="104" y1="172" x2="104" y2="142" stroke="#888" stroke-width="1" stroke-dasharray="3 3"/>
+
+        <!-- handleContinue() intermediate -->
+        <rect x="300" y="162" width="168" height="34" rx="8" fill="#1e1e1e" stroke="#333" stroke-width="1" stroke-dasharray="4 2"/>
+        <text x="384" y="176" font-family="'SF Mono',monospace" font-size="11" fill="#666" text-anchor="middle">setContextBlob(id, text)</text>
+        <text x="384" y="190" font-family="'SF Mono',monospace" font-size="10" fill="#555" text-anchor="middle">then navigate(…/goals)</text>
+        <line x1="180" y1="185" x2="299" y2="179" stroke="#777" stroke-width="1.5" marker-end="url(#arr-g2)"/>
+        <text x="240" y="175" font-family="-apple-system,sans-serif" font-size="10" fill="#666" text-anchor="middle">both paths</text>
+
+        <!-- Destination: /projects/:id/goals -->
+        <rect x="516" y="148" width="220" height="42" rx="10" fill="#fff" stroke="#333" stroke-width="1.5"/>
+        <text x="626" y="167" font-family="'SF Mono',monospace" font-size="11" fill="#111" text-anchor="middle">GoalDefinition</text>
+        <text x="626" y="183" font-family="'SF Mono',monospace" font-size="10" fill="#777" text-anchor="middle">/projects/:id/goals</text>
+        <line x1="468" y1="179" x2="515" y2="169" stroke="#555" stroke-width="1.5" marker-end="url(#arr-d)"/>
+
+        <!-- Destination: / (back) -->
+        <rect x="516" y="74" width="144" height="42" rx="10" fill="#f5f5f5" stroke="#ccc" stroke-width="1.5"/>
+        <text x="588" y="93" font-family="'SF Mono',monospace" font-size="11" fill="#555" text-anchor="middle">ProjectList</text>
+        <text x="588" y="109" font-family="'SF Mono',monospace" font-size="10" fill="#aaa" text-anchor="middle">route: /</text>
+        <path d="M180 42 Q348 42 515 95" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arr-g2)"/>
+        <text x="350" y="34" font-family="-apple-system,sans-serif" font-size="10" fill="#666" text-anchor="middle">navigate('/') — discards unsaved text</text>
+
+        <!-- Intentional note: back goes to /, not /new -->
+        <rect x="680" y="20" width="126" height="36" rx="7" fill="#1a1a1a" stroke="#2a2a2a" stroke-width="1"/>
+        <text x="743" y="35" font-family="-apple-system,sans-serif" font-size="10" fill="#666" text-anchor="middle">intentional — not</text>
+        <text x="743" y="50" font-family="'SF Mono',monospace" font-size="10" fill="#555" text-anchor="middle">navigate(-1)</text>
+      </svg>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════ CONSTRAINTS ═══════════════════════ -->
+  <section>
+    <div class="section-label">Constraints</div>
+    <h2>Do NOT build these</h2>
+    <p class="section-desc">Explicitly out of scope. Reject any PR that adds them.</p>
+    <div class="constraint-grid">
+      <div class="constraint-pill">
+        <svg class="x-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No file upload
+      </div>
+      <div class="constraint-pill">
+        <svg class="x-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No loading state
+      </div>
+      <div class="constraint-pill">
+        <svg class="x-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No error state
+      </div>
+      <div class="constraint-pill">
+        <svg class="x-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No char limit / warning
+      </div>
+      <div class="constraint-pill">
+        <svg class="x-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No auto-save
+      </div>
+      <div class="constraint-pill">
+        <svg class="x-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No markdown preview
+      </div>
+      <div class="constraint-pill">
+        <svg class="x-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No confirmation on Back
+      </div>
+      <div class="constraint-pill">
+        <svg class="x-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No disabled Continue
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════ DEFINITION OF DONE ═══════════════ -->
+  <section>
+    <div class="section-label">Definition of Done</div>
+    <h2>Acceptance checklist</h2>
+    <p class="section-desc">All items must pass before this story is closed.</p>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+
+      <div class="card">
+        <div class="dod-group">
+          <div class="dod-group-title">Routing &amp; guard</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Valid project id → renders AddContext</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Nonexistent id → redirect to <code style="font-family:monospace;font-size:11px;color:#aaa">/</code></div>
+        </div>
+        <div class="dod-group">
+          <div class="dod-group-title">Pre-fill</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Non-empty contextBlob → textarea pre-filled on load</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Empty contextBlob → textarea empty on load</div>
+        </div>
+        <div class="dod-group">
+          <div class="dod-group-title">Step indicator</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Four steps shown: Project, Context, Goals, Interview</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Context has class <code style="font-family:monospace;font-size:11px;color:#aaa">active</code>; others do not</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Separators are <code style="font-family:monospace;font-size:11px;color:#aaa">›</code> characters</div>
+        </div>
+        <div class="dod-group">
+          <div class="dod-group-title">Timmy</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Renders <code style="font-family:monospace;font-size:11px;color:#aaa">&lt;Timmy size={56} state="idle" label={false} /&gt;</code></div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Timmy to left of heading text</div>
+        </div>
+        <div class="dod-group">
+          <div class="dod-group-title">Heading</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Title "Give Timmy some background" · class screen-title · fontSize 26</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Subtitle correct text · class muted · fontSize 14</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="dod-group">
+          <div class="dod-group-title">Textarea</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Label "Existing documentation" with class input-label</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Exact placeholder text</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Helper text: "Plain text only for now — file upload coming soon…"</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Controlled component — typing updates text state</div>
+        </div>
+        <div class="dod-group">
+          <div class="dod-group-title">Token chips</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Empty textarea → no chips in DOM</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Non-empty → chip 1 shows non-blank line count + dot span</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Non-empty → chip 2 shows <code style="font-family:monospace;font-size:11px;color:#aaa">≈ N tokens</code> with toLocaleString()</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Deleting all text removes both chips</div>
+        </div>
+        <div class="dod-group">
+          <div class="dod-group-title">Navigation</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>"← Back" navigates to <code style="font-family:monospace;font-size:11px;color:#aaa">/</code> (not /new)</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Skip + Continue both call setContextBlob then navigate to /goals</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Both save even when textarea is empty</div>
+        </div>
+        <div class="dod-group">
+          <div class="dod-group-title">Must NOT be present</div>
+          <div class="dod-item must-not"><div class="dod-checkbox"></div>No file upload button or drag-drop zone</div>
+          <div class="dod-item must-not"><div class="dod-checkbox"></div>No loading spinner</div>
+          <div class="dod-item must-not"><div class="dod-checkbox"></div>No error messages or validation warnings</div>
+          <div class="dod-item must-not"><div class="dod-checkbox"></div>No markdown preview toggle</div>
+          <div class="dod-item must-not"><div class="dod-checkbox"></div>No disabled state on any button</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

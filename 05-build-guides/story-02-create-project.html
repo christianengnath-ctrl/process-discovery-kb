@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Story 02 — Create Project · Process Discovery</title>
+<style>
+  :root {
+    --bg:          #0d0d0d;
+    --surface:     #111;
+    --surface-2:   #1a1a1a;
+    --border:      #222;
+    --border-2:    rgba(255,255,255,0.12);
+    --text:        #e8e8e8;
+    --text-2:      #a0a0a0;
+    --text-3:      #666;
+    --accent:      #e8e8e8;
+    --green:       #52d48f;
+    --green-soft:  rgba(82,212,143,0.15);
+    --red:         #f87171;
+    --font-mono:   'SF Mono', 'Fira Mono', 'Cascadia Code', monospace;
+    --font-sans:   -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --radius:      16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 0 0 80px;
+  }
+  .page { max-width: 980px; margin: 0 auto; padding: 0 36px; }
+
+  /* Hero */
+  .hero {
+    padding: 56px 0 44px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 56px;
+  }
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 14px;
+  }
+  .hero h1 {
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .meta-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-2);
+  }
+  .meta-pill code {
+    font-family: var(--font-mono);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 2px 8px;
+    font-size: 11px;
+    color: var(--text);
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.04em;
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+  .badge-green {
+    background: var(--green-soft);
+    color: var(--green);
+    border: 1px solid rgba(82,212,143,0.3);
+  }
+
+  /* Section */
+  section { margin-bottom: 60px; }
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  h2 {
+    font-size: 21px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .section-desc {
+    color: var(--text-2);
+    font-size: 13px;
+    margin-bottom: 24px;
+    max-width: 640px;
+    line-height: 1.65;
+  }
+  .section-desc code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    color: var(--text);
+  }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+  }
+  .card-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  /* SVG wrap */
+  .svg-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  svg { display: block; }
+
+  /* Code block */
+  .code-block {
+    background: #080808;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 28px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.8;
+    overflow-x: auto;
+    color: #cdd6f4;
+    tab-size: 2;
+  }
+  .code-block .kw  { color: #cba6f7; }
+  .code-block .fn  { color: #89b4fa; }
+  .code-block .str { color: #a6e3a1; }
+  .code-block .cm  { color: #585b70; font-style: italic; }
+  .code-block .num { color: #fab387; }
+
+  /* Constraint grid */
+  .constraint-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 10px;
+  }
+  .constraint-pill {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 15px;
+    font-size: 12px;
+    color: var(--text-2);
+  }
+  .constraint-pill .x-icon { flex-shrink: 0; color: var(--red); }
+
+  /* DoD */
+  .dod-group { margin-bottom: 26px; }
+  .dod-group:last-child { margin-bottom: 0; }
+  .dod-group-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+    font-family: var(--font-mono);
+  }
+  .dod-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.5;
+  }
+  .dod-item:last-child { border-bottom: none; }
+  .dod-checkbox {
+    flex-shrink: 0;
+    width: 15px;
+    height: 15px;
+    border: 1.5px solid #333;
+    border-radius: 4px;
+    margin-top: 2px;
+  }
+  .dod-item.must-not { color: var(--text-3); }
+  .dod-item.must-not .dod-checkbox { border-color: rgba(248,113,113,0.35); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ═══════════════════════ HERO ══════════════════════════════ -->
+  <div class="hero">
+    <div class="hero-eyebrow">Story 02 · Process Discovery</div>
+    <h1>Create Project</h1>
+    <div class="hero-meta">
+      <div class="meta-pill">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1.5 2.5h10M1.5 6.5h10M1.5 10.5h6" stroke="#888" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Screen <code>CreateProject</code>
+      </div>
+      <div class="meta-pill">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.5L11.5 6.5L6.5 11.5M1.5 6.5h10" stroke="#888" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Route <code>/new</code>
+      </div>
+      <div class="meta-pill">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 1.5h6l3 3v7h-9v-10z" stroke="#888" stroke-width="1.4" stroke-linejoin="round"/><path d="M8.5 1.5v3h3" stroke="#888" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        File <code>src/screens/CreateProject.jsx</code>
+      </div>
+      <div class="badge badge-green">
+        <svg width="7" height="7"><circle cx="3.5" cy="3.5" r="3.5" fill="currentColor"/></svg>
+        Exists — verify &amp; fix gaps
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════ WIREFRAME A — EMPTY ═══════════════ -->
+  <section>
+    <div class="section-label">Wireframe A — Empty form</div>
+    <h2>Initial state</h2>
+    <p class="section-desc">All three fields are blank. The "Create project →" button is disabled — grayed out and non-interactive. The user must fill all three fields before they can proceed.</p>
+
+    <div class="svg-wrap">
+      <svg viewBox="0 0 820 540" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <!-- Browser chrome / app background -->
+        <rect width="820" height="540" fill="#f0f0f0"/>
+
+        <!-- Browser address bar chrome -->
+        <rect width="820" height="36" fill="#e0e0e0" rx="0"/>
+        <rect x="0" y="36" width="820" height="1" fill="#ccc"/>
+        <rect x="200" y="8" width="420" height="20" rx="4" fill="#d5d5d5" stroke="#c5c5c5" stroke-width="1"/>
+        <text x="410" y="22" font-family="-apple-system,sans-serif" font-size="10" fill="#777" text-anchor="middle">localhost:5173/new</text>
+        <!-- Browser buttons -->
+        <circle cx="18" cy="18" r="5" fill="#ff5f57"/>
+        <circle cx="34" cy="18" r="5" fill="#febc2e"/>
+        <circle cx="50" cy="18" r="5" fill="#28c840"/>
+
+        <!-- App shell starts here (below browser chrome) -->
+        <!-- Top nav bar -->
+        <rect x="0" y="37" width="820" height="44" fill="#fff" stroke="#ddd" stroke-width="0"/>
+        <rect x="0" y="80" width="820" height="1" fill="#ddd"/>
+        <!-- Nav logo box -->
+        <rect x="20" y="51" width="16" height="16" rx="4" fill="#ccc" stroke="#bbb" stroke-width="1"/>
+        <!-- Breadcrumb -->
+        <text x="44" y="63" font-family="-apple-system,sans-serif" font-size="12" fill="#999">Process Discovery</text>
+        <text x="155" y="63" font-family="-apple-system,sans-serif" font-size="11" fill="#bbb">›</text>
+        <text x="165" y="63" font-family="-apple-system,sans-serif" font-size="12" fill="#333">New project</text>
+        <!-- Avatar dot (right side nav) -->
+        <circle cx="795" cy="59" r="12" fill="#e0e0e0" stroke="#ccc" stroke-width="1"/>
+        <text x="795" y="63" font-family="-apple-system,sans-serif" font-size="9" fill="#999" text-anchor="middle">SE</text>
+
+        <!-- Screen body — centred column, max 600px -->
+        <!-- column starts at x=110 (820-600)/2=110 -->
+        <rect x="110" y="88" width="600" height="440" fill="#f7f7f7"/>
+
+        <!-- Screen title + subtitle -->
+        <text x="110" y="131" font-family="-apple-system,sans-serif" font-size="20" font-weight="700" fill="#111" letter-spacing="-0.3">New discovery project</text>
+        <text x="110" y="151" font-family="-apple-system,sans-serif" font-size="13" fill="#777">Tell Timmy who he's interviewing and what process to explore.</text>
+
+        <!-- === Field 1: Client name === -->
+        <text x="110" y="186" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" fill="#333">Client name</text>
+        <rect x="110" y="193" width="600" height="38" rx="7" fill="#fff" stroke="#ccc" stroke-width="1.5"/>
+        <text x="122" y="216" font-family="-apple-system,sans-serif" font-size="12" fill="#bbb">e.g. Northwind Health</text>
+        <!-- autoFocus cursor indicator -->
+        <line x1="122" y1="203" x2="122" y2="221" stroke="#555" stroke-width="1.5"/>
+
+        <!-- === Field 2: Process name === -->
+        <text x="110" y="256" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" fill="#333">Process name</text>
+        <rect x="110" y="263" width="600" height="38" rx="7" fill="#fff" stroke="#ccc" stroke-width="1.5"/>
+        <text x="122" y="286" font-family="-apple-system,sans-serif" font-size="12" fill="#bbb">e.g. Refund request handling</text>
+
+        <!-- === Field 3: One-line goal === -->
+        <text x="110" y="326" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" fill="#333">One-line goal</text>
+        <rect x="110" y="333" width="600" height="38" rx="7" fill="#fff" stroke="#ccc" stroke-width="1.5"/>
+        <text x="122" y="356" font-family="-apple-system,sans-serif" font-size="12" fill="#bbb">e.g. Understand how refund requests are processed end to end</text>
+        <!-- Helper text -->
+        <text x="110" y="378" font-family="-apple-system,sans-serif" font-size="11" fill="#aaa">What does the solutions engineer need to walk away knowing?</text>
+
+        <!-- === Button row === -->
+        <!-- Back button (ghost / dashed) -->
+        <rect x="110" y="408" width="100" height="36" rx="7" fill="none" stroke="#bbb" stroke-width="1.5" stroke-dasharray="5 3"/>
+        <text x="160" y="430" font-family="-apple-system,sans-serif" font-size="12" fill="#888" text-anchor="middle">← Back</text>
+
+        <!-- Create project button — DISABLED state -->
+        <rect x="510" y="408" width="200" height="36" rx="7" fill="#e8e8e8" stroke="#ddd" stroke-width="1"/>
+        <text x="610" y="430" font-family="-apple-system,sans-serif" font-size="12" fill="#bbb" text-anchor="middle">Create project →</text>
+
+        <!-- Disabled label annotation -->
+        <line x1="610" y1="444" x2="610" y2="456" stroke="#ccc" stroke-width="1" stroke-dasharray="2 2"/>
+        <text x="610" y="467" font-family="-apple-system,sans-serif" font-size="10" fill="#aaa" text-anchor="middle">disabled — all fields must be filled</text>
+
+        <!-- autoFocus annotation -->
+        <line x1="84" y1="212" x2="109" y2="212" stroke="#aaa" stroke-width="1" stroke-dasharray="3 2"/>
+        <text x="78" y="215" font-family="-apple-system,sans-serif" font-size="9" fill="#999" text-anchor="end">autoFocus</text>
+      </svg>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════ WIREFRAME B — FILLED ══════════════ -->
+  <section>
+    <div class="section-label">Wireframe B — Filled form</div>
+    <h2>Submit-ready state</h2>
+    <p class="section-desc">All three fields contain non-whitespace text. <code>canSubmit</code> evaluates to truthy. The "Create project →" button activates — solid fill, full opacity, clickable.</p>
+
+    <div class="svg-wrap">
+      <svg viewBox="0 0 820 540" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <!-- Background -->
+        <rect width="820" height="540" fill="#f0f0f0"/>
+
+        <!-- Browser chrome -->
+        <rect width="820" height="36" fill="#e0e0e0"/>
+        <rect x="0" y="36" width="820" height="1" fill="#ccc"/>
+        <rect x="200" y="8" width="420" height="20" rx="4" fill="#d5d5d5" stroke="#c5c5c5" stroke-width="1"/>
+        <text x="410" y="22" font-family="-apple-system,sans-serif" font-size="10" fill="#777" text-anchor="middle">localhost:5173/new</text>
+        <circle cx="18" cy="18" r="5" fill="#ff5f57"/>
+        <circle cx="34" cy="18" r="5" fill="#febc2e"/>
+        <circle cx="50" cy="18" r="5" fill="#28c840"/>
+
+        <!-- Nav bar -->
+        <rect x="0" y="37" width="820" height="44" fill="#fff"/>
+        <rect x="0" y="80" width="820" height="1" fill="#ddd"/>
+        <rect x="20" y="51" width="16" height="16" rx="4" fill="#ccc" stroke="#bbb" stroke-width="1"/>
+        <text x="44" y="63" font-family="-apple-system,sans-serif" font-size="12" fill="#999">Process Discovery</text>
+        <text x="155" y="63" font-family="-apple-system,sans-serif" font-size="11" fill="#bbb">›</text>
+        <text x="165" y="63" font-family="-apple-system,sans-serif" font-size="12" fill="#333">New project</text>
+        <circle cx="795" cy="59" r="12" fill="#e0e0e0" stroke="#ccc" stroke-width="1"/>
+        <text x="795" y="63" font-family="-apple-system,sans-serif" font-size="9" fill="#999" text-anchor="middle">SE</text>
+
+        <!-- Screen body -->
+        <rect x="110" y="88" width="600" height="440" fill="#f7f7f7"/>
+
+        <!-- Screen title + subtitle -->
+        <text x="110" y="131" font-family="-apple-system,sans-serif" font-size="20" font-weight="700" fill="#111" letter-spacing="-0.3">New discovery project</text>
+        <text x="110" y="151" font-family="-apple-system,sans-serif" font-size="13" fill="#777">Tell Timmy who he's interviewing and what process to explore.</text>
+
+        <!-- === Field 1: Client name — FILLED === -->
+        <text x="110" y="186" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" fill="#333">Client name</text>
+        <rect x="110" y="193" width="600" height="38" rx="7" fill="#fff" stroke="#999" stroke-width="1.5"/>
+        <text x="122" y="216" font-family="-apple-system,sans-serif" font-size="12" fill="#222">Northwind Health</text>
+
+        <!-- === Field 2: Process name — FILLED === -->
+        <text x="110" y="256" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" fill="#333">Process name</text>
+        <rect x="110" y="263" width="600" height="38" rx="7" fill="#fff" stroke="#999" stroke-width="1.5"/>
+        <text x="122" y="286" font-family="-apple-system,sans-serif" font-size="12" fill="#222">Refund request handling</text>
+
+        <!-- === Field 3: One-line goal — FILLED === -->
+        <text x="110" y="326" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" fill="#333">One-line goal</text>
+        <rect x="110" y="333" width="600" height="38" rx="7" fill="#fff" stroke="#999" stroke-width="1.5"/>
+        <text x="122" y="356" font-family="-apple-system,sans-serif" font-size="12" fill="#222">Understand how refund requests are processed end to end</text>
+        <!-- Helper text -->
+        <text x="110" y="378" font-family="-apple-system,sans-serif" font-size="11" fill="#aaa">What does the solutions engineer need to walk away knowing?</text>
+
+        <!-- === Button row === -->
+        <!-- Back button (ghost) -->
+        <rect x="110" y="408" width="100" height="36" rx="7" fill="none" stroke="#bbb" stroke-width="1.5" stroke-dasharray="5 3"/>
+        <text x="160" y="430" font-family="-apple-system,sans-serif" font-size="12" fill="#888" text-anchor="middle">← Back</text>
+
+        <!-- Create project button — ACTIVE (black fill) -->
+        <rect x="510" y="408" width="200" height="36" rx="7" fill="#1a1a1a" stroke="#111" stroke-width="1"/>
+        <text x="610" y="430" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" fill="#fff" text-anchor="middle">Create project →</text>
+
+        <!-- Active label annotation -->
+        <line x1="610" y1="444" x2="610" y2="456" stroke="#aaa" stroke-width="1" stroke-dasharray="2 2"/>
+        <text x="610" y="467" font-family="-apple-system,sans-serif" font-size="10" fill="#888" text-anchor="middle">active — canSubmit is truthy</text>
+
+        <!-- Checkmarks on filled fields -->
+        <text x="718" y="216" font-family="-apple-system,sans-serif" font-size="12" fill="#999">✓</text>
+        <text x="718" y="286" font-family="-apple-system,sans-serif" font-size="12" fill="#999">✓</text>
+        <text x="718" y="356" font-family="-apple-system,sans-serif" font-size="12" fill="#999">✓</text>
+      </svg>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════ NAVIGATION FLOW ═══════════════════ -->
+  <section>
+    <div class="section-label">Navigation Flow</div>
+    <h2>Where each action goes</h2>
+    <p class="section-desc">The form is a single screen. Submit calls <code>createProject()</code> synchronously, gets back the new UUID, then navigates. Back navigates to <code>/</code> without touching the store.</p>
+
+    <div class="svg-wrap">
+      <svg viewBox="0 0 820 200" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <defs>
+          <marker id="arr-dark" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0 1.5L8 5L0 8.5z" fill="#555"/>
+          </marker>
+          <marker id="arr-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0 1.5L8 5L0 8.5z" fill="#999"/>
+          </marker>
+        </defs>
+        <rect width="820" height="200" fill="#111"/>
+
+        <!-- Source: /new -->
+        <rect x="28" y="72" width="148" height="56" rx="10" fill="#1a1a1a" stroke="#444" stroke-width="1.5"/>
+        <text x="102" y="95" font-family="'SF Mono',monospace" font-size="11" fill="#e8e8e8" text-anchor="middle">CreateProject</text>
+        <text x="102" y="113" font-family="'SF Mono',monospace" font-size="10" fill="#555" text-anchor="middle">route: /new</text>
+
+        <!-- Back button trigger -->
+        <rect x="28" y="20" width="148" height="28" rx="7" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+        <text x="102" y="38" font-family="-apple-system,sans-serif" font-size="11" fill="#888" text-anchor="middle">click "← Back"</text>
+        <line x1="102" y1="48" x2="102" y2="71" stroke="#666" stroke-width="1" stroke-dasharray="3 3"/>
+
+        <!-- Submit trigger -->
+        <rect x="28" y="148" width="148" height="28" rx="7" fill="#1a1a1a" stroke="#444" stroke-width="1"/>
+        <text x="102" y="166" font-family="-apple-system,sans-serif" font-size="11" fill="#ccc" text-anchor="middle">submit (canSubmit)</text>
+        <line x1="102" y1="148" x2="102" y2="128" stroke="#888" stroke-width="1" stroke-dasharray="3 3"/>
+
+        <!-- createProject() intermediate -->
+        <rect x="300" y="140" width="150" height="34" rx="8" fill="#1e1e1e" stroke="#333" stroke-width="1" stroke-dasharray="4 2"/>
+        <text x="375" y="162" font-family="'SF Mono',monospace" font-size="11" fill="#777" text-anchor="middle">createProject(…)</text>
+
+        <!-- Arrow: submit → createProject -->
+        <line x1="176" y1="162" x2="299" y2="157" stroke="#888" stroke-width="1.5" marker-end="url(#arr-back)"/>
+        <text x="237" y="153" font-family="-apple-system,sans-serif" font-size="10" fill="#666" text-anchor="middle">trim values</text>
+
+        <!-- Destination: /projects/:id/context -->
+        <rect x="498" y="120" width="220" height="42" rx="10" fill="#fff" stroke="#333" stroke-width="1.5"/>
+        <text x="608" y="139" font-family="'SF Mono',monospace" font-size="11" fill="#111" text-anchor="middle">AddContext</text>
+        <text x="608" y="155" font-family="'SF Mono',monospace" font-size="10" fill="#777" text-anchor="middle">/projects/:id/context</text>
+        <!-- Arrow: createProject → AddContext -->
+        <line x1="450" y1="157" x2="497" y2="142" stroke="#555" stroke-width="1.5" marker-end="url(#arr-dark)"/>
+        <text x="474" y="145" font-family="-apple-system,sans-serif" font-size="10" fill="#777" text-anchor="middle">navigate</text>
+
+        <!-- Destination: / (back) -->
+        <rect x="498" y="56" width="140" height="42" rx="10" fill="#f5f5f5" stroke="#ccc" stroke-width="1.5"/>
+        <text x="568" y="75" font-family="'SF Mono',monospace" font-size="11" fill="#555" text-anchor="middle">ProjectList</text>
+        <text x="568" y="91" font-family="'SF Mono',monospace" font-size="10" fill="#aaa" text-anchor="middle">route: /</text>
+        <!-- Arrow: back → / -->
+        <path d="M176 34 Q337 34 497 77" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arr-back)"/>
+        <text x="337" y="28" font-family="-apple-system,sans-serif" font-size="10" fill="#777" text-anchor="middle">navigate('/')</text>
+
+        <!-- Note: returns id -->
+        <rect x="680" y="24" width="120" height="44" rx="7" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+        <text x="740" y="40" font-family="-apple-system,sans-serif" font-size="10" fill="#777" text-anchor="middle">returns new</text>
+        <text x="740" y="55" font-family="'SF Mono',monospace" font-size="10" fill="#aaa" text-anchor="middle">project.id</text>
+      </svg>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════ FIELD ANATOMY ═════════════════════ -->
+  <section>
+    <div class="section-label">Field Anatomy</div>
+    <h2>Input field structure</h2>
+    <p class="section-desc">All three fields use the same pattern: <code>input-label</code> → <code>input</code> → optional <code>input-helper</code>. Field 3 (goal) is the only one with helper text.</p>
+
+    <div class="svg-wrap">
+      <svg viewBox="0 0 820 200" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <rect width="820" height="200" fill="#111"/>
+
+        <!-- Field group box -->
+        <rect x="60" y="30" width="480" height="130" rx="10" fill="#1a1a1a" stroke="#2a2a2a" stroke-width="1"/>
+
+        <!-- label element -->
+        <rect x="76" y="50" width="100" height="18" rx="3" fill="#2a2a2a"/>
+        <text x="126" y="62" font-family="-apple-system,sans-serif" font-size="11" fill="#888" text-anchor="middle">One-line goal</text>
+
+        <!-- input element -->
+        <rect x="76" y="74" width="448" height="38" rx="6" fill="#111" stroke="#333" stroke-width="1.5"/>
+        <text x="90" y="97" font-family="-apple-system,sans-serif" font-size="11" fill="#555">e.g. Understand how refund requests are processed end to end</text>
+
+        <!-- helper text -->
+        <text x="76" y="128" font-family="-apple-system,sans-serif" font-size="11" fill="#555">What does the solutions engineer need to walk away knowing?</text>
+        <rect x="76" y="133" width="70" height="12" rx="2" fill="none"/>
+
+        <!-- Annotation arrows -->
+        <!-- label -->
+        <line x1="590" y1="59" x2="555" y2="59" stroke="#444" stroke-width="1" stroke-dasharray="3 2"/>
+        <text x="598" y="63" font-family="'SF Mono',monospace" font-size="10" fill="#666">input-label</text>
+
+        <!-- input -->
+        <line x1="590" y1="93" x2="525" y2="93" stroke="#444" stroke-width="1" stroke-dasharray="3 2"/>
+        <text x="598" y="97" font-family="'SF Mono',monospace" font-size="10" fill="#aaa">input (controlled)</text>
+
+        <!-- helper -->
+        <line x1="590" y1="127" x2="555" y2="127" stroke="#444" stroke-width="1" stroke-dasharray="3 2"/>
+        <text x="598" y="131" font-family="'SF Mono',monospace" font-size="10" fill="#666">input-helper</text>
+
+        <!-- note: fields 1 & 2 have no helper -->
+        <text x="60" y="178" font-family="-apple-system,sans-serif" font-size="11" fill="#555">Fields 1 &amp; 2 (Client name, Process name) omit the helper text row. Field 1 has autoFocus.</text>
+      </svg>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════ SUBMIT GUARD ══════════════════════ -->
+  <section>
+    <div class="section-label">Submit Guard Logic</div>
+    <h2>Button state transitions</h2>
+    <p class="section-desc">The submit guard is a single derived boolean. No loading state, no error state. The button either allows submission or it does not.</p>
+
+    <div class="card-row">
+      <div class="svg-wrap">
+        <svg viewBox="0 0 390 220" xmlns="http://www.w3.org/2000/svg" width="100%">
+          <rect width="390" height="220" fill="#111"/>
+          <text x="20" y="28" font-family="'SF Mono',monospace" font-size="10" fill="#555" letter-spacing="0.1em">DISABLED STATE</text>
+
+          <!-- Disabled button -->
+          <rect x="20" y="40" width="200" height="36" rx="7" fill="#e8e8e8" stroke="#ddd" stroke-width="1"/>
+          <text x="120" y="62" font-family="-apple-system,sans-serif" font-size="12" fill="#bbb" text-anchor="middle">Create project →</text>
+
+          <!-- Conditions -->
+          <text x="20" y="105" font-family="'SF Mono',monospace" font-size="11" fill="#555">canSubmit = false when:</text>
+          <text x="20" y="126" font-family="-apple-system,sans-serif" font-size="12" fill="#777">• clientName.trim() === ''</text>
+          <text x="20" y="144" font-family="-apple-system,sans-serif" font-size="12" fill="#777">• processName.trim() === ''</text>
+          <text x="20" y="162" font-family="-apple-system,sans-serif" font-size="12" fill="#777">• goal.trim() === ''</text>
+          <text x="20" y="185" font-family="-apple-system,sans-serif" font-size="11" fill="#555">Any one empty → disabled</text>
+        </svg>
+      </div>
+
+      <div class="svg-wrap">
+        <svg viewBox="0 0 390 220" xmlns="http://www.w3.org/2000/svg" width="100%">
+          <rect width="390" height="220" fill="#111"/>
+          <text x="20" y="28" font-family="'SF Mono',monospace" font-size="10" fill="#555" letter-spacing="0.1em">ACTIVE STATE</text>
+
+          <!-- Active button -->
+          <rect x="20" y="40" width="200" height="36" rx="7" fill="#f5f5f5" stroke="#333" stroke-width="1.5"/>
+          <text x="120" y="62" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" fill="#111" text-anchor="middle">Create project →</text>
+
+          <!-- Conditions -->
+          <text x="20" y="105" font-family="'SF Mono',monospace" font-size="11" fill="#888">canSubmit = true when:</text>
+          <text x="20" y="126" font-family="-apple-system,sans-serif" font-size="12" fill="#ccc">• clientName.trim().length &gt; 0</text>
+          <text x="20" y="144" font-family="-apple-system,sans-serif" font-size="12" fill="#ccc">• processName.trim().length &gt; 0</text>
+          <text x="20" y="162" font-family="-apple-system,sans-serif" font-size="12" fill="#ccc">• goal.trim().length &gt; 0</text>
+          <text x="20" y="185" font-family="-apple-system,sans-serif" font-size="11" fill="#888">All three non-empty → active</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════ CONSTRAINTS ═══════════════════════ -->
+  <section>
+    <div class="section-label">Constraints</div>
+    <h2>Do NOT build these</h2>
+    <p class="section-desc">Explicitly out of scope. Reject any PR that adds them.</p>
+    <div class="constraint-grid">
+      <div class="constraint-pill">
+        <svg class="x-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No template cards
+      </div>
+      <div class="constraint-pill">
+        <svg class="x-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No loading state
+      </div>
+      <div class="constraint-pill">
+        <svg class="x-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No error state
+      </div>
+      <div class="constraint-pill">
+        <svg class="x-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No character count
+      </div>
+      <div class="constraint-pill">
+        <svg class="x-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No multi-step wizard
+      </div>
+      <div class="constraint-pill">
+        <svg class="x-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No autosave
+      </div>
+      <div class="constraint-pill">
+        <svg class="x-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No Cancel button
+      </div>
+      <div class="constraint-pill">
+        <svg class="x-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        No field-level errors
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════ DEFINITION OF DONE ═══════════════ -->
+  <section>
+    <div class="section-label">Definition of Done</div>
+    <h2>Acceptance checklist</h2>
+    <p class="section-desc">All items must pass before this story is closed.</p>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+
+      <div class="card">
+        <div class="dod-group">
+          <div class="dod-group-title">Routing</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Navigating to <code style="font-family:monospace;font-size:11px;color:#aaa">/new</code> renders CreateProject</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>After submit, URL changes to <code style="font-family:monospace;font-size:11px;color:#aaa">/projects/&lt;uuid&gt;/context</code></div>
+          <div class="dod-item"><div class="dod-checkbox"></div>"← Back" navigates to <code style="font-family:monospace;font-size:11px;color:#aaa">/</code> without submitting</div>
+        </div>
+        <div class="dod-group">
+          <div class="dod-group-title">Fields</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>All 3 fields render with correct labels, placeholders, classes</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>clientName field has autoFocus on mount</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>All inputs are controlled — typing updates state</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Helper text appears below goal input only</div>
+        </div>
+        <div class="dod-group">
+          <div class="dod-group-title">Submit guard</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Button disabled when any field is empty / whitespace-only</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Button enables only when all 3 fields are non-empty</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Clearing one field re-disables the button</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="dod-group">
+          <div class="dod-group-title">Submission</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Submit calls <code style="font-family:monospace;font-size:11px;color:#aaa">createProject</code> with trimmed values</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>New project appears in ProjectList with status <code style="font-family:monospace;font-size:11px;color:#aaa">setup</code>, pct 0</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Returned id used to navigate to context route</div>
+        </div>
+        <div class="dod-group">
+          <div class="dod-group-title">Navigation</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>"← Back" is <code style="font-family:monospace;font-size:11px;color:#aaa">type="button"</code> — does not submit form</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Enter in empty form does not submit or throw</div>
+        </div>
+        <div class="dod-group">
+          <div class="dod-group-title">Layout</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Form column is horizontally centred</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Max-width is 600px</div>
+          <div class="dod-item"><div class="dod-checkbox"></div>Back left, Create right in button row</div>
+        </div>
+        <div class="dod-group">
+          <div class="dod-group-title">Must NOT be present</div>
+          <div class="dod-item must-not"><div class="dod-checkbox"></div>No template cards or preset options</div>
+          <div class="dod-item must-not"><div class="dod-checkbox"></div>No loading spinner at any point</div>
+          <div class="dod-item must-not"><div class="dod-checkbox"></div>No field-level error messages</div>
+          <div class="dod-item must-not"><div class="dod-checkbox"></div>No Cancel button or modal</div>
+          <div class="dod-item must-not"><div class="dod-checkbox"></div>No multi-step layout or step indicator</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
